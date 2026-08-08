@@ -98,7 +98,7 @@ export function Toggle({ label, checked, onChange }) {
         <div style={{
           width: 18, height: 18, borderRadius: "50%", background: "#FFFFFF", position: "absolute", top: 3,
           left: checked ? 23 : 3, transition: "left .2s",
-          boxShadow: "0 1px 3px rgba(0,0,0,.15)",
+          boxShadow: "0 1px 3px rgba(74,63,53,.18)",
         }} />
       </div>
     </div>
@@ -164,7 +164,7 @@ export function Tabs({ active, onChange, items }) {
             flex: 1, padding: "10px 4px", fontSize: 13, fontWeight: active === t.key ? 700 : 500, fontFamily: fontHeading,
             color: active === t.key ? "#FFFFFF" : P.textMuted, background: active === t.key ? P.accent : "transparent",
             border: "none", borderRadius: 8, cursor: "pointer", transition: "all .15s ease",
-            boxShadow: active === t.key ? "0 2px 6px rgba(0,0,0,.15)" : "none",
+            boxShadow: active === t.key ? "0 2px 6px rgba(74,63,53,.18)" : "none",
           }}
         >
           {t.label}
@@ -191,7 +191,7 @@ export function PresetChips({ active, onSelect }) {
                 border: `1.5px solid ${isActive ? P.accent : P.border}`,
                 borderRadius: 10, cursor: "pointer", textAlign: "left", fontFamily: font,
                 transition: "all .15s ease",
-                boxShadow: isActive ? "0 3px 10px rgba(0,0,0,.12)" : P.shadow,
+                boxShadow: isActive ? "0 3px 10px rgba(74,63,53,.15)" : P.shadow,
               }}
             >
               <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.02em", fontFamily: fontHeading }}>{p.label}</div>
@@ -266,7 +266,7 @@ export function ComunaSearch({ selected, onSelect }) {
   );
 }
 
-export function HomyNestLogo({ color = "#000000", size = 38 }) {
+export function HomyNestLogo({ color = "#A67C52", size = 38 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 42 42" fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round">
       <path d="M6 34 L6 18 L21 8 L36 18 L36 34 Z" />
@@ -339,7 +339,7 @@ export function SaveQuoteModal({ open, onClose, onSave, saving }) {
                 color: !canSave || saving ? P.textDim : "#FFFFFF",
                 border: "none", borderRadius: 8, fontFamily: font,
                 fontSize: 14, fontWeight: 700, cursor: !canSave || saving ? "not-allowed" : "pointer",
-                boxShadow: canSave && !saving ? "0 2px 8px rgba(0,0,0,.15)" : "none",
+                boxShadow: canSave && !saving ? "0 2px 8px rgba(74,63,53,.18)" : "none",
                 transition: "all .15s ease",
               }}
             >

@@ -311,7 +311,7 @@ function CalcModulos() {
           style={{
             width: "100%", padding: "16px 20px", background: P.accent, color: "#FFFFFF",
             border: "none", borderRadius: 12, fontFamily: fontHeading, fontSize: 15, fontWeight: 700,
-            letterSpacing: "-0.01em", cursor: "pointer", boxShadow: "0 4px 16px rgba(0,0,0,.2)",
+            letterSpacing: "-0.01em", cursor: "pointer", boxShadow: "0 4px 16px rgba(166,124,82,.3)",
             transition: "all .15s ease",
           }}
         >
@@ -497,7 +497,7 @@ function CalcCasa() {
           style={{
             width: "100%", padding: "16px 20px", background: P.accent, color: "#FFFFFF",
             border: "none", borderRadius: 12, fontFamily: fontHeading, fontSize: 15, fontWeight: 700,
-            cursor: "pointer", boxShadow: "0 4px 16px rgba(0,0,0,.2)",
+            cursor: "pointer", boxShadow: "0 4px 16px rgba(166,124,82,.3)",
             transition: "all .15s ease",
           }}
         >
