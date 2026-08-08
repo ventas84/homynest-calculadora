@@ -12,28 +12,50 @@ function escapeHTML(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
-function buildStandaloneHTML(quote) {
-  const items = quote.items;
-  const t = quote.totals;
-  const rows = [];
-  const push = (d) => rows.push(d);
-  if (items.m3x6bc > 0) push(`Módulo 3×6 con baño y cocina${items.m3x6bc > 1 ? ` (×${items.m3x6bc})` : ""}`);
-  if (items.m3x6b > 0) push(`Módulo 3×6 con baño${items.m3x6b > 1 ? ` (×${items.m3x6b})` : ""}`);
-  if (items.m3x6v > 0) push(`Módulo 3×6 vacío${items.m3x6v > 1 ? ` (×${items.m3x6v})` : ""}`);
-  if (items.m35x7b > 0) push(`Módulo 3,5×7 con baño${items.m35x7b > 1 ? ` (×${items.m35x7b})` : ""}`);
-  if (items.m35x7v > 0) push(`Módulo 3,5×7 solo${items.m35x7v > 1 ? ` (×${items.m35x7v})` : ""}`);
-  if (items.incl150) push("150 cm adicionales");
-  if (items.inclEstruct) push("Extra estructura ventanal");
-  if (items.inclCocina) push("Mueble de cocina");
-  if (items.banos > 0) push(`Mueble de baño${items.banos > 1 ? ` (×${items.banos})` : ""}`);
-  if (items.inclVent) push("Ventanas");
-  if (items.inclHoja) push("Hojalatería");
-  if (items.inclApoyos) push(`Apoyos${items.cantApoyos > 1 ? ` (×${items.cantApoyos})` : ""}`);
-  if (items.viaticos > 0) push("Viáticos y transportes");
+function projectInfo(quote) {
+  const items = quote.items || {};
+  const isCasa = quote.quoteType === "casa" && quote.casa;
+  const totalMod = quote.totalModulos || 1;
+  const mt2 = quote.mt2 || 0;
 
-  const includesHTML = rows.length > 0
-    ? '<div class="includes-section"><div class="section-title">INCLUYE</div><ul class="includes-list">' + rows.map((r) => `<li>${escapeHTML(r)}</li>`).join("") + '</ul></div>'
-    : "";
+  if (isCasa) {
+    return {
+      isCasa: true,
+      title: `CASA DE ${mt2} METROS CUADRADOS`,
+      dims: quote.casa.dims,
+      prog: quote.casa.prog,
+      precioTabla: Math.max(mt2 * C.casaUf * C.uf, quote.totals.precio),
+    };
+  }
+
+  const n3x6 = (items.m3x6bc || 0) + (items.m3x6b || 0) + (items.m3x6v || 0);
+  const n35x7 = (items.m35x7b || 0) + (items.m35x7v || 0);
+  let dims;
+  if (n3x6 > 0 && n35x7 === 0) {
+    const len = n3x6 * 6 + (items.incl150 ? 1.5 : 0);
+    dims = `3 x ${len % 1 === 0 ? len : String(len).replace(".", ",")} mt`;
+  } else if (n35x7 > 0 && n3x6 === 0) {
+    const len = n35x7 * 7;
+    dims = `3,5 x ${len} mt`;
+  } else {
+    dims = `${mt2} m²`;
+  }
+
+  const banos = items.banos || 0;
+  const prog = `${totalMod > 1 ? totalMod : 1} dormitorio${totalMod > 1 ? "s" : ""}, ${banos} baño${banos !== 1 ? "s" : ""}, living-comedor-cocina`;
+  const dimsUp = dims.replace(/ x /i, "X").toUpperCase();
+  const title = `${totalMod} MÓDULO${totalMod > 1 ? "S" : ""}, ${mt2} METROS CUADRADOS (${dimsUp})`;
+  const precioTabla = Math.max(mt2 * C.modUf * C.uf, quote.totals.precio);
+
+  return { isCasa: false, title, dims, prog, precioTabla };
+}
+
+function buildStandaloneHTML(quote) {
+  const t = quote.totals;
+  const info = projectInfo(quote);
+
+  const termsHTML = quote.terms.map((term) => `<li>${escapeHTML(term)}</li>`).join("");
+
   const extrasActive = quote.extras ? Object.entries(quote.extras) : [];
   const extrasTotal = extrasActive.reduce((s, [, v]) => s + v.qty * v.price, 0);
   const extrasHTML = extrasActive.length > 0
@@ -47,7 +69,7 @@ function buildStandaloneHTML(quote) {
         <div class="note">* Estos ítems se cotizan por separado del presupuesto principal.</div>
       </div>`
     : "";
-  const termsHTML = quote.terms.map((term) => `<li>${escapeHTML(term)}</li>`).join("");
+
   const logHTML = quote.comuna
     ? `<div class="logistics-box">
         <div class="section-title">LOGÍSTICA — ${escapeHTML(quote.comuna.nombre)}, ${escapeHTML(quote.comuna.region)}</div>
@@ -59,19 +81,12 @@ function buildStandaloneHTML(quote) {
         <div class="note">* Valor de logística cotizado aparte, no incluido en el precio oferta.</div>
       </div>`
     : "";
+
   const notesHTML = quote.client.notes
     ? `<div class="notes-box"><div class="section-title">NOTAS DEL PROYECTO</div><div>${escapeHTML(quote.client.notes).replace(/\n/g, "<br>")}</div></div>`
     : "";
 
-  const isCasa = quote.quoteType === "casa" && quote.casa;
-  const tableDesc = isCasa
-    ? `Casa de <strong>${quote.mt2} metros cuadrados</strong> (${escapeHTML(quote.casa.dims)})<br><span style="color:#666">(${escapeHTML(quote.casa.prog)})</span>`
-    : `${escapeHTML(quote.modelName)}<br><span style="color:#666">${quote.totalModulos || 1} módulo${(quote.totalModulos || 1) > 1 ? "s" : ""} · ${quote.mt2} m²</span>`;
-  const itemsSection = `<div class="budget-table reveal">
-      <table><thead><tr><th class="th-desc">DESCRIPCIÓN</th><th class="th-qty">CANTIDAD</th><th class="th-price">PRECIO NETO</th></tr></thead>
-      <tbody><tr><td class="td-desc">${tableDesc}</td><td class="td-qty">1</td><td class="td-price">${fmt(t.precio)}</td></tr></tbody></table>
-    </div>
-    ${isCasa ? "" : includesHTML}`;
+  const descLabel = info.isCasa ? "Casa" : "Módulo";
 
   return `<!DOCTYPE html>
 <html lang="es"><head>
@@ -82,44 +97,42 @@ function buildStandaloneHTML(quote) {
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Open Sans',-apple-system,sans-serif;background:linear-gradient(135deg,#F5F1E8 0%,#EAE4D3 100%);padding:24px 16px;color:#1A1A1A;line-height:1.4;min-height:100vh}
-.container{max-width:820px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 25px 70px rgba(42,74,71,.15)}
-.green-header{background:#2A4A47;color:#fff;padding:32px 32px 28px;position:relative;overflow:hidden}
-.green-header::before{content:'';position:absolute;top:-50%;right:-20%;width:400px;height:400px;background:radial-gradient(circle,rgba(90,197,126,.15) 0%,transparent 70%);pointer-events:none}
-.brand-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;position:relative}
+body{font-family:'Open Sans',-apple-system,sans-serif;background:#F5F1E8;padding:24px 16px;color:#1A1A1A;line-height:1.4;min-height:100vh}
+.container{max-width:820px;margin:0 auto;background:#fff;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+.green-header{background:#2A4A47;color:#fff;padding:32px 36px 28px}
+.brand-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
 .brand{display:flex;align-items:center;gap:12px;font-size:24px;font-weight:800;letter-spacing:-.02em}
-.web{font-size:14px;font-weight:600;opacity:.95}
-.header-divider{height:1px;background:rgba(255,255,255,.15);margin:0 -32px 22px}
-.header-cols{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap;position:relative}
-.header-text{flex:1 1 60%;min-width:0;font-size:13.5px;line-height:1.55}
-.header-meta{text-align:right;font-size:12px;white-space:nowrap;line-height:1.7}
-.body{padding:44px 32px}
-.client-header{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid #E5E5E5}
-.client-info-label{font-size:10px;letter-spacing:.12em;color:#666;font-weight:700;text-transform:uppercase;margin-bottom:6px}
-.client-name{font-size:17px;font-weight:700}
-.client-detail{font-size:12.5px;color:#666;margin-top:3px}
-.quote-id{font-size:15px;font-weight:700;color:#2A4A47;font-family:monospace;letter-spacing:.05em}
-.project{margin-bottom:36px}
-.project-label{font-size:11px;letter-spacing:.14em;color:#666;font-weight:700;margin-bottom:8px}
-.project-name{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-bottom:14px}
-.studio{font-size:13px;color:#666;line-height:1.7}
-.section-title{font-size:11px;letter-spacing:.14em;color:#2A4A47;font-weight:800;text-transform:uppercase;margin-bottom:12px}
-.budget-table{margin-bottom:28px}
+.web{font-size:18px;font-weight:700}
+.header-divider{height:1px;background:rgba(255,255,255,.2);margin:0 0 22px}
+.header-cols{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap}
+.header-text{flex:1 1 55%;min-width:0;font-size:13px;line-height:1.6}
+.header-meta{text-align:right;font-size:13px;line-height:1.8}
+.body{padding:48px 36px}
+.project-row{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.project-label{font-size:13px;letter-spacing:.1em;color:#1A1A1A;font-weight:800;flex-shrink:0}
+.project-name{font-size:22px;font-weight:900;color:#1A1A1A;letter-spacing:-.01em}
+.studio{font-size:14px;color:#444;line-height:1.7}
+.table-sep{height:1px;background:#1A1A1A;margin:20px 0 24px}
+.budget-table{margin-bottom:0}
 .budget-table table{width:100%;border-collapse:collapse}
-.budget-table th{padding:10px 8px;font-size:10px;letter-spacing:.12em;color:#2A4A47;font-weight:800;text-transform:uppercase;border-bottom:2px solid #2A4A47}
+.budget-table th{padding:10px 8px;font-size:11px;letter-spacing:.1em;color:#1A1A1A;font-weight:800;text-transform:uppercase;border-bottom:2px solid #1A1A1A}
 .th-desc{text-align:left}
-.th-qty{text-align:center;width:80px}
-.th-price{text-align:right;width:130px}
-.budget-table td{padding:14px 8px;border-bottom:1px dashed #E5E5E5}
-.td-desc{line-height:1.5;color:#1A1A1A}
-.td-qty{text-align:center;color:#666}
-.td-price{text-align:right;font-weight:700;color:#1A1A1A;white-space:nowrap}
-.includes-section{margin-bottom:28px}
-.includes-list{padding-left:22px;margin:0}
-.includes-list li{font-size:12.5px;line-height:1.7;margin-bottom:5px;color:#1A1A1A}
-.price-section{text-align:center;margin-bottom:36px;padding:8px 0}
-.price-line{height:3px;background:linear-gradient(90deg,#2A4A47,#5AC57E);margin-bottom:28px}
-.price-text{font-size:28px;font-weight:900;color:#2A4A47;letter-spacing:-.02em}
+.th-qty{text-align:center;width:100px}
+.th-price{text-align:right;width:140px}
+.budget-table td{padding:16px 8px}
+.td-desc{line-height:1.6;color:#1A1A1A;font-size:14px}
+.td-qty{text-align:center;color:#1A1A1A;font-size:14px}
+.td-price{text-align:right;font-weight:400;color:#1A1A1A;font-size:14px;white-space:nowrap}
+.price-section{text-align:center;margin:40px 0 40px;padding:0}
+.price-line{height:3px;background:linear-gradient(90deg,#2A4A47 0%,#5AC57E 50%,#2A4A47 100%);margin-bottom:36px}
+.price-text{font-size:30px;font-weight:900;color:#1A1A1A;letter-spacing:.02em}
+.price-text .neto{font-size:16px;font-weight:700;margin-left:4px;vertical-align:baseline}
+.terms-sep{height:1px;background:#ccc;margin:0 0 24px}
+.terms{margin-bottom:28px}
+.terms-title{font-size:14px;font-weight:800;color:#1A1A1A;letter-spacing:.04em;margin-bottom:16px;text-decoration:underline}
+.terms ul{padding-left:22px;list-style-type:disc}
+.terms li{font-size:13px;line-height:1.7;margin-bottom:6px}
+.section-title{font-size:11px;letter-spacing:.14em;color:#2A4A47;font-weight:800;text-transform:uppercase;margin-bottom:12px}
 .extras-box{border:1.5px dashed #FBBF24;border-radius:12px;padding:18px 20px;background:#F5F1E8;margin-bottom:32px}
 .extras-row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px dashed #E5E5E5;font-size:13px}
 .extras-price{font-weight:600;white-space:nowrap}
@@ -129,17 +142,12 @@ body{font-family:'Open Sans',-apple-system,sans-serif;background:linear-gradient
 .log-row.total{font-weight:700;font-size:14px}
 .log-divider{height:1px;background:#E5E5E5;margin:8px 0}
 .note{font-size:11px;color:#666;margin-top:12px;font-style:italic}
-.terms{margin-bottom:28px}
-.terms-title{font-size:13px;font-weight:800;color:#2A4A47;letter-spacing:.06em;margin-bottom:16px}
-.terms ul{padding-left:22px}
-.terms li{font-size:12.5px;line-height:1.7;margin-bottom:7px}
 .notes-box{background:#F5F1E8;border-left:4px solid #2A4A47;padding:16px 18px;border-radius:8px;margin-bottom:28px;font-size:13px;line-height:1.6}
-.footer-bar{background:#2A4A47;color:#fff;padding:18px 28px;text-align:center;font-size:11px;letter-spacing:.24em;font-weight:700}
-.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
 .reveal.in{opacity:1;transform:translateY(0)}
-.green-header,.footer-bar{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-@media print{body{background:#fff;padding:0}.container{box-shadow:none;border-radius:0}.reveal{opacity:1!important;transform:none!important}}
-@media(max-width:640px){body{padding:0}.container{border-radius:0}.body{padding:32px 20px}.green-header{padding:26px 20px 22px}.price-text{font-size:22px}.project-name{font-size:19px}}
+.green-header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+@media print{body{background:#fff;padding:0}.container{box-shadow:none}.reveal{opacity:1!important;transform:none!important}}
+@media(max-width:640px){body{padding:0}.body{padding:32px 20px}.green-header{padding:26px 20px 22px}.price-text{font-size:22px}.project-name{font-size:18px}}
 </style></head>
 <body>
 <div class="container">
@@ -157,49 +165,50 @@ body{font-family:'Open Sans',-apple-system,sans-serif;background:linear-gradient
     <div class="header-cols">
       <div class="header-text">${escapeHTML(quote.headerText)}</div>
       <div class="header-meta">
-        <div><strong>Fecha:</strong> ${escapeHTML(fmtDate(quote.createdAt))}</div>
-        <div><strong>Validez:</strong> ${escapeHTML(quote.validez)}</div>
+        <div><strong><em>Fecha:</em></strong> ${escapeHTML(fmtDate(quote.createdAt))}</div>
+        <div><strong><em>Validez:</em></strong> ${escapeHTML(quote.validez)}</div>
       </div>
     </div>
   </div>
   <div class="body">
-    <div class="client-header reveal">
-      <div>
-        <div class="client-info-label">Cliente</div>
-        <div class="client-name">${escapeHTML(quote.client.name)}</div>
-        ${quote.client.phone ? `<div class="client-detail">${escapeHTML(quote.client.phone)}</div>` : ""}
-        ${quote.client.email ? `<div class="client-detail">${escapeHTML(quote.client.email)}</div>` : ""}
-      </div>
-      <div style="text-align:right">
-        <div class="client-info-label">N° Cotización</div>
-        <div class="quote-id">${escapeHTML(quote.id)}</div>
-        <div class="client-detail">${escapeHTML(fmtDate(quote.createdAt))}</div>
-      </div>
-    </div>
     <div class="project reveal">
-      <div class="project-label">PROYECTO:</div>
-      <div class="project-name">${escapeHTML(quote.modelName)}</div>
-      ${isCasa ? `<div class="studio">(${escapeHTML(quote.casa.dims)})<br>(${escapeHTML(quote.casa.prog)})</div>` : ""}
-      <div class="studio">Homy Nest Studio<br>Cristóbal Letelier G<br>Patente 3-4240</div>
+      <div class="project-row">
+        <span class="project-label">PROYECTO:</span>
+        <span class="project-name">${escapeHTML(info.title)}</span>
+      </div>
+      <div class="studio">Homy Nest Studio</div>
+      <div class="studio">Cristóbal Letelier G</div>
+      <div class="studio">Patente 3-4240</div>
     </div>
-    ${itemsSection}
+    <div class="table-sep"></div>
+    <div class="budget-table reveal">
+      <table>
+        <thead><tr><th class="th-desc">DESCRIPCIÓN</th><th class="th-qty">CANTIDAD</th><th class="th-price">PRECIO NETO</th></tr></thead>
+        <tbody><tr>
+          <td class="td-desc">${descLabel} de <strong>${quote.mt2} metros cuadrados</strong> (${escapeHTML(info.dims)})<br>(${escapeHTML(info.prog)})</td>
+          <td class="td-qty">1</td>
+          <td class="td-price">${fmt(info.precioTabla)}</td>
+        </tr></tbody>
+      </table>
+    </div>
     <div class="price-section reveal">
       <div class="price-line"></div>
-      <div class="price-text">PRECIO OFERTA : ${fmt(t.precio)} NETO</div>
+      <div class="price-text">PRECIO OFERTA :&nbsp;&nbsp; ${fmt(t.precio)} <span class="neto">NETO</span></div>
     </div>
-    ${extrasHTML}
-    ${logHTML}
+    <div class="terms-sep"></div>
     <div class="terms reveal">
       <div class="terms-title">TÉRMINOS Y CONDICIONES</div>
       <ul>${termsHTML}</ul>
     </div>
+    ${extrasHTML}
+    ${logHTML}
     ${notesHTML}
   </div>
-  <div class="footer-bar">HOMYNEST · WWW.HOMYNEST.CL</div>
 </div>
 <script>
 const io=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting){el.target.classList.add('in');io.unobserve(el.target)}})},{threshold:.15});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+setTimeout(()=>{document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in'))},800);
 </script>
 </body></html>`;
 }
@@ -295,7 +304,8 @@ export default function QuoteView() {
   };
 
   const t = quote.totals;
-  const items = quote.items;
+  const info = projectInfo(quote);
+  const descLabel = info.isCasa ? "Casa" : "Módulo";
 
   return (
     <>
@@ -303,10 +313,8 @@ export default function QuoteView() {
         @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
         .reveal { opacity:0; transform:translateY(24px); transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
         .reveal-in { opacity:1; transform:translateY(0); }
-        .hover-lift { transition: transform .25s ease, box-shadow .25s ease; }
-        .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(42,74,71,.28); }
         .edit-hover:hover { background: rgba(255,255,255,0.08) !important; }
-        @media print { .no-print { display:none !important; } body, html { background:white !important; } .quote-doc { background:white !important; box-shadow:none !important; border-radius:0 !important; } .reveal { opacity:1 !important; transform:none !important; } }
+        @media print { .no-print { display:none !important; } body, html { background:white !important; } .quote-doc { background:white !important; box-shadow:none !important; } .reveal { opacity:1 !important; transform:none !important; } }
       `}</style>
 
       <div className="no-print" style={{ marginBottom: 16 }}>
@@ -315,6 +323,12 @@ export default function QuoteView() {
           <button onClick={() => navigate("/cotizaciones")} style={{ background: P.card, border: `1px solid ${P.border}`, color: P.text, padding: "8px 12px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontFamily: font }}>Mis cotizaciones</button>
           <div style={{ flex: 1 }} />
           <button onClick={() => window.print()} style={{ background: P.cardAlt, border: `1px solid ${P.border}`, color: P.text, padding: "8px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontFamily: font, fontWeight: 600 }}>Imprimir</button>
+        </div>
+
+        <div style={{ background: P.card, padding: "10px 14px", borderRadius: 8, border: `1px solid ${P.border}`, marginBottom: 8, fontSize: 13, fontFamily: font }}>
+          <span style={{ color: P.textMuted }}>Cliente:</span> <strong>{quote.client.name}</strong>
+          {quote.client.phone && <span style={{ color: P.textMuted, marginLeft: 12 }}>{quote.client.phone}</span>}
+          <span style={{ color: P.textDim, marginLeft: 12, fontSize: 11 }}>N° {quote.id}</span>
         </div>
 
         <button onClick={downloadHTML} style={{ width: "100%", background: P.accent, border: "none", color: "#FFFFFF", padding: "14px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: fontHeading, fontWeight: 700, marginBottom: 8, letterSpacing: "-0.01em", boxShadow: "0 4px 16px rgba(234,88,12,.3)", transition: "all .15s ease" }}>
@@ -336,21 +350,21 @@ export default function QuoteView() {
         </div>
       </div>
 
-      {/* ═══════════ QUOTE DOCUMENT ═══════════ */}
-      <div className="quote-doc" style={{ background: B.bg, borderRadius: 14, overflow: "hidden", boxShadow: "0 12px 50px rgba(0,0,0,0.4)", fontFamily: font, color: B.ink }}>
+      {/* ═══════════ QUOTE DOCUMENT (replica PDF) ═══════════ */}
+      <div className="quote-doc" style={{ background: "#fff", overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,.1)", fontFamily: font, color: "#1A1A1A" }}>
+
         {/* Green header */}
-        <div style={{ background: B.darkGreen, padding: "28px 24px 24px", color: "#fff", position: "relative", overflow: "hidden", animation: "fadeUp .6s cubic-bezier(.16,1,.3,1) both" }}>
-          <div style={{ position: "absolute", top: "-50%", right: "-20%", width: 400, height: 400, background: "radial-gradient(circle, rgba(90,197,126,0.15) 0%, transparent 70%)", pointerEvents: "none" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22, position: "relative" }}>
+        <div style={{ background: B.darkGreen, padding: "28px 28px 24px", color: "#fff", animation: "fadeUp .6s cubic-bezier(.16,1,.3,1) both" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <HomyNestLogo color="#fff" size={38} />
               <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em" }}>HomyNest</div>
             </div>
-            <div style={{ fontSize: 13, fontWeight: 600, opacity: 0.95 }}>www.homynest.cl</div>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>www.homynest.cl</div>
           </div>
-          <div style={{ height: 1, background: "rgba(255,255,255,0.15)", margin: "0 -24px 20px" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 20, alignItems: "flex-start", flexWrap: "wrap", position: "relative" }}>
-            <div style={{ flex: "1 1 60%", minWidth: 0 }}>
+          <div style={{ height: 1, background: "rgba(255,255,255,0.2)", margin: "0 0 20px" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 55%", minWidth: 0 }}>
               {editingHeader ? (
                 <div>
                   <textarea value={tempHeader} onChange={(e) => setTempHeader(e.target.value)} rows={3} style={{ width: "100%", background: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 6, padding: "8px 10px", fontSize: 13, fontFamily: font, outline: "none", resize: "vertical", boxSizing: "border-box" }} />
@@ -360,138 +374,75 @@ export default function QuoteView() {
                   </div>
                 </div>
               ) : (
-                <div onClick={() => setEditingHeader(true)} className="edit-hover" style={{ fontSize: 13, lineHeight: 1.55, cursor: "pointer", padding: "4px 6px", borderRadius: 4, marginLeft: -6, transition: "background .2s" }} title="Click para editar">
+                <div onClick={() => setEditingHeader(true)} className="edit-hover" style={{ fontSize: 13, lineHeight: 1.6, cursor: "pointer", padding: "4px 6px", borderRadius: 4, marginLeft: -6, transition: "background .2s" }} title="Click para editar">
                   {quote.headerText}
                 </div>
               )}
             </div>
-            <div style={{ textAlign: "right", fontSize: 12, whiteSpace: "nowrap", lineHeight: 1.7 }}>
-              <div><strong>Fecha:</strong> {fmtDate(quote.createdAt)}</div>
-              <div><strong>Validez:</strong> {editingHeader ? <input value={tempValidez} onChange={(e) => setTempValidez(e.target.value)} style={{ width: 80, background: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 4, padding: "2px 6px", fontSize: 12, fontFamily: font, marginLeft: 4 }} /> : quote.validez}</div>
+            <div style={{ textAlign: "right", fontSize: 13, lineHeight: 1.8 }}>
+              <div><strong><em>Fecha:</em></strong> {editingHeader ? <input value={tempValidez} onChange={() => {}} style={{ display: "none" }} /> : null}{fmtDate(quote.createdAt)}</div>
+              <div><strong><em>Validez:</em></strong> {editingHeader ? <input value={tempValidez} onChange={(e) => setTempValidez(e.target.value)} style={{ width: 80, background: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 4, padding: "2px 6px", fontSize: 12, fontFamily: font, marginLeft: 4 }} /> : quote.validez}</div>
             </div>
           </div>
         </div>
 
-        {/* Body */}
-        <div style={{ padding: "40px 24px" }}>
-          <div className="reveal" style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginBottom: 28, paddingBottom: 20, borderBottom: `1px solid ${B.border}` }}>
-            <div>
-              <div style={{ fontSize: 10, letterSpacing: "0.12em", color: B.gray, fontWeight: 700, marginBottom: 6, textTransform: "uppercase" }}>Cliente</div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: B.ink }}>{quote.client.name}</div>
-              {quote.client.phone && <div style={{ fontSize: 12.5, color: B.gray, marginTop: 3 }}>{quote.client.phone}</div>}
-              {quote.client.email && <div style={{ fontSize: 12.5, color: B.gray, marginTop: 3 }}>{quote.client.email}</div>}
+        {/* Body — identical to PDF */}
+        <div style={{ padding: "48px 28px" }}>
+
+          {/* PROYECTO */}
+          <div className="reveal" style={{ marginBottom: 0 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 13, letterSpacing: "0.1em", fontWeight: 800, flexShrink: 0 }}>PROYECTO:</span>
+              <span style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.01em" }}>{info.title}</span>
             </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 10, letterSpacing: "0.12em", color: B.gray, fontWeight: 700, marginBottom: 6, textTransform: "uppercase" }}>N° Cotización</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: B.darkGreen, fontFamily: "monospace", letterSpacing: "0.05em" }}>{quote.id}</div>
-              <div style={{ fontSize: 12, color: B.gray, marginTop: 3 }}>{fmtDate(quote.createdAt)}</div>
+            <div style={{ fontSize: 14, color: "#444", lineHeight: 1.7 }}>
+              Homy Nest Studio<br />
+              Cristóbal Letelier G<br />
+              Patente 3-4240
             </div>
           </div>
 
-          <div className="reveal" style={{ marginBottom: 32 }}>
-            <div style={{ fontSize: 11, letterSpacing: "0.14em", color: B.gray, fontWeight: 700, marginBottom: 8 }}>PROYECTO:</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: B.ink, letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 4 }}>{quote.modelName}</div>
-            {quote.casa && <div style={{ fontSize: 13, color: B.ink, marginTop: 6 }}>({quote.casa.dims})<br />({quote.casa.prog})</div>}
-            {!quote.casa && <div style={{ fontSize: 12, color: B.gray, marginTop: 6 }}>{quote.totalModulos} módulos · {quote.mt2} m²</div>}
-            <div style={{ fontSize: 13, color: B.gray, lineHeight: 1.6, marginTop: 10 }}>Homy Nest Studio<br />Arquitecto: Cristóbal Letelier G.<br />Patente 3-4240</div>
-          </div>
+          {/* Horizontal line */}
+          <div style={{ height: 1, background: "#1A1A1A", margin: "20px 0 24px" }} />
 
-          {/* Budget table */}
-          <div className="reveal" style={{ marginBottom: 28 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          {/* Table */}
+          <div className="reveal">
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ borderBottom: `2px solid ${B.darkGreen}` }}>
-                  <th style={{ textAlign: "left", padding: "10px 8px", fontSize: 10, letterSpacing: "0.12em", color: B.darkGreen, fontWeight: 800, textTransform: "uppercase" }}>Descripción</th>
-                  <th style={{ textAlign: "center", padding: "10px 8px", fontSize: 10, letterSpacing: "0.12em", color: B.darkGreen, fontWeight: 800, textTransform: "uppercase", width: 80 }}>Cantidad</th>
-                  <th style={{ textAlign: "right", padding: "10px 8px", fontSize: 10, letterSpacing: "0.12em", color: B.darkGreen, fontWeight: 800, textTransform: "uppercase", width: 130 }}>Precio Neto</th>
+                <tr style={{ borderBottom: "2px solid #1A1A1A" }}>
+                  <th style={{ textAlign: "left", padding: "10px 8px", fontSize: 11, letterSpacing: "0.1em", fontWeight: 800 }}>DESCRIPCIÓN</th>
+                  <th style={{ textAlign: "center", padding: "10px 8px", fontSize: 11, letterSpacing: "0.1em", fontWeight: 800, width: 100 }}>CANTIDAD</th>
+                  <th style={{ textAlign: "right", padding: "10px 8px", fontSize: 11, letterSpacing: "0.1em", fontWeight: 800, width: 140 }}>PRECIO NETO</th>
                 </tr>
               </thead>
               <tbody>
-                <tr style={{ borderBottom: `1px dashed ${B.border}` }}>
-                  <td style={{ padding: "14px 8px", color: B.ink, lineHeight: 1.5 }}>
-                    {quote.quoteType === "casa" && quote.casa ? (
-                      <>Casa de <strong>{quote.mt2} metros cuadrados</strong> ({quote.casa.dims})<br /><span style={{ color: B.gray }}>({quote.casa.prog})</span></>
-                    ) : (
-                      <>{quote.modelName}<br /><span style={{ color: B.gray }}>{quote.totalModulos} módulo{quote.totalModulos > 1 ? "s" : ""} · {quote.mt2} m²</span></>
-                    )}
+                <tr>
+                  <td style={{ padding: "16px 8px", fontSize: 14, lineHeight: 1.6 }}>
+                    {descLabel} de <strong>{quote.mt2} metros cuadrados</strong> ({info.dims})<br />
+                    ({info.prog})
                   </td>
-                  <td style={{ padding: "14px 8px", textAlign: "center", color: B.gray }}>1</td>
-                  <td style={{ padding: "14px 8px", textAlign: "right", fontWeight: 700, color: B.ink, whiteSpace: "nowrap" }}>{fmt(t.precio)}</td>
+                  <td style={{ padding: "16px 8px", textAlign: "center", fontSize: 14 }}>1</td>
+                  <td style={{ padding: "16px 8px", textAlign: "right", fontSize: 14, whiteSpace: "nowrap" }}>{fmt(info.precioTabla)}</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          {/* Includes list (modules only) */}
-          {quote.quoteType !== "casa" && (
-            <div className="reveal" style={{ marginBottom: 28 }}>
-              <div style={{ fontSize: 11, letterSpacing: "0.14em", color: B.darkGreen, fontWeight: 800, marginBottom: 10, textTransform: "uppercase" }}>Incluye</div>
-              <ul style={{ margin: 0, paddingLeft: 20, fontSize: 12.5, color: B.ink, lineHeight: 1.8 }}>
-                {items.m3x6bc > 0 && <li>Módulo 3×6 con baño y cocina{items.m3x6bc > 1 ? ` (×${items.m3x6bc})` : ""}</li>}
-                {items.m3x6b > 0 && <li>Módulo 3×6 con baño{items.m3x6b > 1 ? ` (×${items.m3x6b})` : ""}</li>}
-                {items.m3x6v > 0 && <li>Módulo 3×6 vacío{items.m3x6v > 1 ? ` (×${items.m3x6v})` : ""}</li>}
-                {items.m35x7b > 0 && <li>Módulo 3,5×7 con baño{items.m35x7b > 1 ? ` (×${items.m35x7b})` : ""}</li>}
-                {items.m35x7v > 0 && <li>Módulo 3,5×7 solo{items.m35x7v > 1 ? ` (×${items.m35x7v})` : ""}</li>}
-                {items.incl150 && <li>150 cm adicionales</li>}
-                {items.inclEstruct && <li>Extra estructura ventanal</li>}
-                {items.inclCocina && <li>Mueble de cocina</li>}
-                {items.banos > 0 && <li>Mueble de baño{items.banos > 1 ? ` (×${items.banos})` : ""}</li>}
-                {items.inclVent && <li>Ventanas</li>}
-                {items.inclHoja && <li>Hojalatería</li>}
-                {items.inclApoyos && <li>Apoyos{items.cantApoyos > 1 ? ` (×${items.cantApoyos})` : ""}</li>}
-                {items.viaticos > 0 && <li>Viáticos y transportes</li>}
-              </ul>
-            </div>
-          )}
-
-          {/* Price offer */}
-          <div className="reveal" style={{ textAlign: "center", marginBottom: 36, padding: "8px 0" }}>
-            <div style={{ height: 3, background: `linear-gradient(90deg, ${B.darkGreen}, ${B.green})`, marginBottom: 28 }} />
-            <div style={{ fontSize: 28, fontWeight: 900, color: B.darkGreen, letterSpacing: "-0.02em" }}>
-              PRECIO OFERTA : {fmt(t.precio)} NETO
+          {/* Green gradient line + PRECIO OFERTA */}
+          <div className="reveal" style={{ textAlign: "center", margin: "40px 0" }}>
+            <div style={{ height: 3, background: `linear-gradient(90deg, ${B.darkGreen} 0%, ${B.green} 50%, ${B.darkGreen} 100%)`, marginBottom: 36 }} />
+            <div style={{ fontSize: 30, fontWeight: 900, letterSpacing: "0.02em" }}>
+              PRECIO OFERTA :&nbsp;&nbsp; {fmt(t.precio)} <span style={{ fontSize: 16, fontWeight: 700 }}>NETO</span>
             </div>
           </div>
 
-          {/* Extras */}
-          {quote.extras && Object.keys(quote.extras).length > 0 && (
-            <div className="reveal" style={{ marginBottom: 32, padding: "16px 18px", border: "1.5px dashed #FBBF24", borderRadius: 10, background: B.cream }}>
-              <div style={{ fontSize: 11, letterSpacing: "0.14em", color: B.darkGreen, fontWeight: 800, marginBottom: 12, textTransform: "uppercase" }}>Terraza y otros (cotización aparte)</div>
-              {Object.entries(quote.extras).map(([id, v]) => {
-                const def = EXTRAS.find((e) => e.id === id);
-                return def ? (
-                  <div key={id} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "7px 0", borderBottom: `1px dashed ${B.border}`, fontSize: 13, color: B.ink }}>
-                    <span>{def.label} — {v.qty} {def.unit}</span>
-                    <span style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{fmt(v.qty * v.price)} + IVA</span>
-                  </div>
-                ) : null;
-              })}
-              {(() => {
-                const extTotal = Object.entries(quote.extras).reduce((s, [, v]) => s + v.qty * v.price, 0);
-                return <div style={{ borderTop: `1px solid ${B.border}`, marginTop: 12, paddingTop: 10, display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 14, color: B.ink }}><span>Total terraza y otros</span><span>{fmt(extTotal)} + IVA</span></div>;
-              })()}
-              <div style={{ fontSize: 11, color: B.gray, marginTop: 10, fontStyle: "italic" }}>* Estos ítems se cotizan por separado del presupuesto principal.</div>
-            </div>
-          )}
-
-          {/* Logistics */}
-          {quote.comuna && (
-            <div className="reveal" style={{ marginBottom: 32, padding: "16px 18px", border: `1.5px dashed ${B.darkGreen}`, borderRadius: 10, background: B.cream }}>
-              <div style={{ fontSize: 11, letterSpacing: "0.14em", color: B.darkGreen, fontWeight: 800, marginBottom: 10, textTransform: "uppercase" }}>Logística — {quote.comuna.nombre}, {quote.comuna.region}</div>
-              <div style={{ fontSize: 13, color: B.ink, lineHeight: 1.7 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Distancia</span><span>{fmtNum(quote.comuna.km)} km</span></div>
-                <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Transporte</span><span>{fmt(quote.comuna.transporte)}</span></div>
-                <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Izaje</span><span>{fmt(quote.comuna.izaje)}</span></div>
-                <div style={{ height: 1, background: B.border, margin: "8px 0" }} />
-                <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, padding: "4px 0" }}><span>Total logística</span><span>{fmt(t.totalLog)}</span></div>
-              </div>
-              <div style={{ fontSize: 11, color: B.gray, marginTop: 10, fontStyle: "italic" }}>* Valor de logística cotizado aparte, no incluido en el precio oferta.</div>
-            </div>
-          )}
+          {/* Horizontal line before terms */}
+          <div style={{ height: 1, background: "#ccc", marginBottom: 24 }} />
 
           {/* Terms */}
           <div className="reveal" style={{ marginBottom: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: B.darkGreen, letterSpacing: "0.06em" }}>TÉRMINOS Y CONDICIONES</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 800, letterSpacing: "0.04em", textDecoration: "underline" }}>TÉRMINOS Y CONDICIONES</div>
               {!editingTerms && (
                 <button onClick={() => setEditingTerms(true)} className="no-print" style={{ background: "transparent", border: `1px solid ${B.border}`, color: B.gray, padding: "4px 12px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontFamily: font, fontWeight: 600 }}>Editar</button>
               )}
@@ -501,7 +452,7 @@ export default function QuoteView() {
                 {tempTerms.map((term, i) => (
                   <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "flex-start" }}>
                     <span style={{ color: B.gray, marginTop: 8, flexShrink: 0 }}>•</span>
-                    <textarea value={term} onChange={(e) => { const updated = [...tempTerms]; updated[i] = e.target.value; setTempTerms(updated); }} rows={2} style={{ flex: 1, border: `1px solid ${B.border}`, borderRadius: 6, padding: "6px 10px", fontSize: 12, fontFamily: font, color: B.ink, outline: "none", resize: "vertical", boxSizing: "border-box" }} />
+                    <textarea value={term} onChange={(e) => { const updated = [...tempTerms]; updated[i] = e.target.value; setTempTerms(updated); }} rows={2} style={{ flex: 1, border: `1px solid ${B.border}`, borderRadius: 6, padding: "6px 10px", fontSize: 12, fontFamily: font, color: "#1A1A1A", outline: "none", resize: "vertical", boxSizing: "border-box" }} />
                     <button onClick={() => setTempTerms(tempTerms.filter((_, idx) => idx !== i))} style={{ background: "transparent", border: `1px solid ${B.border}`, color: B.gray, padding: "6px 10px", borderRadius: 6, cursor: "pointer", fontSize: 14, flexShrink: 0 }}>×</button>
                   </div>
                 ))}
@@ -513,29 +464,57 @@ export default function QuoteView() {
                 </div>
               </div>
             ) : (
-              <ul style={{ margin: 0, paddingLeft: 20, color: B.ink }}>
-                {quote.terms.map((term, i) => <li key={i} style={{ fontSize: 12.5, lineHeight: 1.7, marginBottom: 7 }}>{term}</li>)}
+              <ul style={{ margin: 0, paddingLeft: 22, listStyleType: "disc" }}>
+                {quote.terms.map((term, i) => <li key={i} style={{ fontSize: 13, lineHeight: 1.7, marginBottom: 6 }}>{term}</li>)}
               </ul>
             )}
           </div>
 
-          {quote.client.notes && (
-            <div className="reveal" style={{ marginBottom: 24, padding: "14px 16px", background: B.cream, borderRadius: 8, borderLeft: `4px solid ${B.darkGreen}` }}>
-              <div style={{ fontSize: 11, letterSpacing: "0.14em", color: B.gray, fontWeight: 700, marginBottom: 6, textTransform: "uppercase" }}>Notas del proyecto</div>
-              <div style={{ fontSize: 13, color: B.ink, whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{quote.client.notes}</div>
+          {/* Extras (if any) */}
+          {quote.extras && Object.keys(quote.extras).length > 0 && (
+            <div className="reveal" style={{ marginBottom: 32, padding: "16px 18px", border: "1.5px dashed #FBBF24", borderRadius: 10, background: B.cream }}>
+              <div style={{ fontSize: 11, letterSpacing: "0.14em", color: B.darkGreen, fontWeight: 800, marginBottom: 12, textTransform: "uppercase" }}>Terraza y otros (cotización aparte)</div>
+              {Object.entries(quote.extras).map(([eid, v]) => {
+                const def = EXTRAS.find((e) => e.id === eid);
+                return def ? (
+                  <div key={eid} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "7px 0", borderBottom: `1px dashed ${B.border}`, fontSize: 13 }}>
+                    <span>{def.label} — {v.qty} {def.unit}</span>
+                    <span style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{fmt(v.qty * v.price)} + IVA</span>
+                  </div>
+                ) : null;
+              })}
+              {(() => {
+                const extTotal = Object.entries(quote.extras).reduce((s, [, v]) => s + v.qty * v.price, 0);
+                return <div style={{ borderTop: `1px solid ${B.border}`, marginTop: 12, paddingTop: 10, display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 14 }}><span>Total terraza y otros</span><span>{fmt(extTotal)} + IVA</span></div>;
+              })()}
+              <div style={{ fontSize: 11, color: B.gray, marginTop: 10, fontStyle: "italic" }}>* Estos ítems se cotizan por separado del presupuesto principal.</div>
             </div>
           )}
 
-          <div className="reveal" style={{ borderTop: `1px solid ${B.border}`, paddingTop: 20, marginTop: 32, textAlign: "center" }}>
-            <div style={{ fontSize: 13, color: B.gray, lineHeight: 1.6 }}>Homy Nest Studio · Cristóbal Letelier G · Patente 3-4240</div>
-          </div>
-        </div>
+          {/* Logistics (if any) */}
+          {quote.comuna && (
+            <div className="reveal" style={{ marginBottom: 32, padding: "16px 18px", border: `1.5px dashed ${B.darkGreen}`, borderRadius: 10, background: B.cream }}>
+              <div style={{ fontSize: 11, letterSpacing: "0.14em", color: B.darkGreen, fontWeight: 800, marginBottom: 10, textTransform: "uppercase" }}>Logística — {quote.comuna.nombre}, {quote.comuna.region}</div>
+              <div style={{ fontSize: 13, lineHeight: 1.7 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Distancia</span><span>{fmtNum(quote.comuna.km)} km</span></div>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Transporte</span><span>{fmt(quote.comuna.transporte)}</span></div>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Izaje</span><span>{fmt(quote.comuna.izaje)}</span></div>
+                <div style={{ height: 1, background: B.border, margin: "8px 0" }} />
+                <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, padding: "4px 0" }}><span>Total logística</span><span>{fmt(t.totalLog)}</span></div>
+              </div>
+              <div style={{ fontSize: 11, color: B.gray, marginTop: 10, fontStyle: "italic" }}>* Valor de logística cotizado aparte, no incluido en el precio oferta.</div>
+            </div>
+          )}
 
-        <div style={{ background: B.darkGreen, padding: "16px 24px", textAlign: "center", color: "#fff" }}>
-          <div style={{ fontSize: 11, letterSpacing: "0.24em", opacity: 0.95, fontWeight: 700 }}>HOMYNEST · WWW.HOMYNEST.CL</div>
+          {/* Notes (if any) */}
+          {quote.client.notes && (
+            <div className="reveal" style={{ marginBottom: 24, padding: "14px 16px", background: B.cream, borderRadius: 8, borderLeft: `4px solid ${B.darkGreen}` }}>
+              <div style={{ fontSize: 11, letterSpacing: "0.14em", color: B.gray, fontWeight: 700, marginBottom: 6, textTransform: "uppercase" }}>Notas del proyecto</div>
+              <div style={{ fontSize: 13, whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{quote.client.notes}</div>
+            </div>
+          )}
         </div>
       </div>
     </>
   );
 }
-
