@@ -16,8 +16,8 @@ export default function App() {
         background: P.bg,
         color: P.text,
         fontFamily: font,
-        padding: "20px 16px 40px",
-        maxWidth: 520,
+        padding: isQuoteView ? "20px 16px 40px" : "20px 16px 40px",
+        maxWidth: isQuoteView ? 820 : 520,
         margin: "0 auto",
         boxSizing: "border-box",
       }}

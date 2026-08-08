@@ -12,6 +12,41 @@ function escapeHTML(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
+function boldHeaderHTML(text) {
+  let s = escapeHTML(text);
+  s = s.replace(/(&quot;llave en mano&quot;|"llave en mano")/gi, '<strong>"llave en mano"</strong>');
+  s = s.replace(/(\d+[,,]\d+\s*UF)/gi, "<strong>$1</strong>");
+  return s;
+}
+
+function BoldHeaderText({ text }) {
+  const parts = [];
+  let rest = text;
+  const patterns = [
+    { re: /"llave en mano"/i, bold: true },
+    { re: /\d+[,]\d+\s*UF/i, bold: true },
+  ];
+  let key = 0;
+  while (rest.length > 0) {
+    let earliest = null;
+    let earliestIdx = rest.length;
+    let matchStr = "";
+    for (const p of patterns) {
+      const m = rest.match(p.re);
+      if (m && m.index < earliestIdx) {
+        earliest = p;
+        earliestIdx = m.index;
+        matchStr = m[0];
+      }
+    }
+    if (!earliest) { parts.push(rest); break; }
+    if (earliestIdx > 0) parts.push(rest.slice(0, earliestIdx));
+    parts.push(<strong key={key++}>{matchStr}</strong>);
+    rest = rest.slice(earliestIdx + matchStr.length);
+  }
+  return <>{parts}</>;
+}
+
 function projectInfo(quote) {
   const items = quote.items || {};
   const isCasa = quote.quoteType === "casa" && quote.casa;
@@ -99,18 +134,18 @@ function buildStandaloneHTML(quote) {
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Open Sans',-apple-system,sans-serif;background:#F5F1E8;padding:24px 16px;color:#1A1A1A;line-height:1.4;min-height:100vh}
 .container{max-width:820px;margin:0 auto;background:#fff;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.1)}
-.green-header{background:#2A4A47;color:#fff;padding:32px 36px 28px}
+.green-header{background:#2A4A47;color:#fff;padding:36px 44px 30px}
 .brand-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-.brand{display:flex;align-items:center;gap:12px;font-size:24px;font-weight:800;letter-spacing:-.02em}
-.web{font-size:18px;font-weight:700}
+.brand{display:flex;align-items:center;gap:14px;font-size:28px;font-weight:800;letter-spacing:-.02em}
+.web{font-size:22px;font-weight:700}
 .header-divider{height:1px;background:rgba(255,255,255,.2);margin:0 0 22px}
 .header-cols{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap}
 .header-text{flex:1 1 55%;min-width:0;font-size:13px;line-height:1.6}
 .header-meta{text-align:right;font-size:13px;line-height:1.8}
-.body{padding:48px 36px}
-.project-row{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
-.project-label{font-size:13px;letter-spacing:.1em;color:#1A1A1A;font-weight:800;flex-shrink:0}
-.project-name{font-size:22px;font-weight:900;color:#1A1A1A;letter-spacing:-.01em}
+.body{padding:48px 44px}
+.project-row{margin-bottom:14px}
+.project-label{font-size:12px;letter-spacing:.1em;color:#1A1A1A;font-weight:800}
+.project-name{font-size:21px;font-weight:900;color:#1A1A1A;letter-spacing:-.01em}
 .studio{font-size:14px;color:#444;line-height:1.7}
 .table-sep{height:1px;background:#1A1A1A;margin:20px 0 24px}
 .budget-table{margin-bottom:0}
@@ -125,8 +160,8 @@ body{font-family:'Open Sans',-apple-system,sans-serif;background:#F5F1E8;padding
 .td-price{text-align:right;font-weight:400;color:#1A1A1A;font-size:14px;white-space:nowrap}
 .price-section{text-align:center;margin:40px 0 40px;padding:0}
 .price-line{height:3px;background:linear-gradient(90deg,#2A4A47 0%,#5AC57E 50%,#2A4A47 100%);margin-bottom:36px}
-.price-text{font-size:30px;font-weight:900;color:#1A1A1A;letter-spacing:.02em}
-.price-text .neto{font-size:16px;font-weight:700;margin-left:4px;vertical-align:baseline}
+.price-text{font-size:28px;font-weight:900;color:#1A1A1A;letter-spacing:.02em;white-space:nowrap}
+.price-text .neto{font-size:15px;font-weight:700;margin-left:4px;vertical-align:baseline}
 .terms-sep{height:1px;background:#ccc;margin:0 0 24px}
 .terms{margin-bottom:28px}
 .terms-title{font-size:14px;font-weight:800;color:#1A1A1A;letter-spacing:.04em;margin-bottom:16px;text-decoration:underline}
@@ -154,7 +189,7 @@ body{font-family:'Open Sans',-apple-system,sans-serif;background:#F5F1E8;padding
   <div class="green-header">
     <div class="brand-row">
       <div class="brand">
-        <svg width="38" height="38" viewBox="0 0 42 42" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+        <svg width="48" height="48" viewBox="0 0 42 42" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
           <path d="M6 34 L6 18 L21 8 L36 18 L36 34 Z"/><path d="M6 18 L21 26 L36 18"/><path d="M21 26 L21 34"/>
         </svg>
         <span>HomyNest</span>
@@ -163,7 +198,7 @@ body{font-family:'Open Sans',-apple-system,sans-serif;background:#F5F1E8;padding
     </div>
     <div class="header-divider"></div>
     <div class="header-cols">
-      <div class="header-text">${escapeHTML(quote.headerText)}</div>
+      <div class="header-text">${boldHeaderHTML(quote.headerText)}</div>
       <div class="header-meta">
         <div><strong><em>Fecha:</em></strong> ${escapeHTML(fmtDate(quote.createdAt))}</div>
         <div><strong><em>Validez:</em></strong> ${escapeHTML(quote.validez)}</div>
@@ -354,13 +389,13 @@ export default function QuoteView() {
       <div className="quote-doc" style={{ background: "#fff", overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,.1)", fontFamily: font, color: "#1A1A1A" }}>
 
         {/* Green header */}
-        <div style={{ background: B.darkGreen, padding: "28px 28px 24px", color: "#fff", animation: "fadeUp .6s cubic-bezier(.16,1,.3,1) both" }}>
+        <div style={{ background: B.darkGreen, padding: "36px 44px 30px", color: "#fff", animation: "fadeUp .6s cubic-bezier(.16,1,.3,1) both" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <HomyNestLogo color="#fff" size={38} />
-              <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em" }}>HomyNest</div>
+              <HomyNestLogo color="#fff" size={48} />
+              <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.02em" }}>HomyNest</div>
             </div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>www.homynest.cl</div>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>www.homynest.cl</div>
           </div>
           <div style={{ height: 1, background: "rgba(255,255,255,0.2)", margin: "0 0 20px" }} />
           <div style={{ display: "flex", justifyContent: "space-between", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
@@ -375,7 +410,7 @@ export default function QuoteView() {
                 </div>
               ) : (
                 <div onClick={() => setEditingHeader(true)} className="edit-hover" style={{ fontSize: 13, lineHeight: 1.6, cursor: "pointer", padding: "4px 6px", borderRadius: 4, marginLeft: -6, transition: "background .2s" }} title="Click para editar">
-                  {quote.headerText}
+                  <BoldHeaderText text={quote.headerText} />
                 </div>
               )}
             </div>
@@ -387,13 +422,13 @@ export default function QuoteView() {
         </div>
 
         {/* Body — identical to PDF */}
-        <div style={{ padding: "48px 28px" }}>
+        <div style={{ padding: "48px 44px" }}>
 
           {/* PROYECTO */}
           <div className="reveal" style={{ marginBottom: 0 }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 13, letterSpacing: "0.1em", fontWeight: 800, flexShrink: 0 }}>PROYECTO:</span>
-              <span style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.01em" }}>{info.title}</span>
+            <div style={{ marginBottom: 14 }}>
+              <span style={{ fontSize: 12, letterSpacing: "0.1em", fontWeight: 800 }}>PROYECTO: &nbsp;&nbsp;</span>
+              <span style={{ fontSize: 21, fontWeight: 900, letterSpacing: "-0.01em" }}>{info.title}</span>
             </div>
             <div style={{ fontSize: 14, color: "#444", lineHeight: 1.7 }}>
               Homy Nest Studio<br />
@@ -431,8 +466,8 @@ export default function QuoteView() {
           {/* Green gradient line + PRECIO OFERTA */}
           <div className="reveal" style={{ textAlign: "center", margin: "40px 0" }}>
             <div style={{ height: 3, background: `linear-gradient(90deg, ${B.darkGreen} 0%, ${B.green} 50%, ${B.darkGreen} 100%)`, marginBottom: 36 }} />
-            <div style={{ fontSize: 30, fontWeight: 900, letterSpacing: "0.02em" }}>
-              PRECIO OFERTA :&nbsp;&nbsp; {fmt(t.precio)} <span style={{ fontSize: 16, fontWeight: 700 }}>NETO</span>
+            <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
+              PRECIO OFERTA :&nbsp;&nbsp; {fmt(t.precio)} <span style={{ fontSize: 15, fontWeight: 700, verticalAlign: "baseline" }}>NETO</span>
             </div>
           </div>
 
