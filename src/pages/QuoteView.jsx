@@ -366,7 +366,7 @@ export default function QuoteView() {
           <span style={{ color: P.textDim, marginLeft: 12, fontSize: 11 }}>N° {quote.id}</span>
         </div>
 
-        <button onClick={downloadHTML} style={{ width: "100%", background: P.accent, border: "none", color: "#FFFFFF", padding: "14px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: fontHeading, fontWeight: 700, marginBottom: 8, letterSpacing: "-0.01em", boxShadow: "0 4px 16px rgba(234,88,12,.3)", transition: "all .15s ease" }}>
+        <button onClick={downloadHTML} style={{ width: "100%", background: P.accent, border: "none", color: "#FFFFFF", padding: "14px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: fontHeading, fontWeight: 700, marginBottom: 8, letterSpacing: "-0.01em", boxShadow: "0 4px 16px rgba(0,0,0,.2)", transition: "all .15s ease" }}>
           Descargar pagina HTML (para enviar al cliente)
         </button>
 
