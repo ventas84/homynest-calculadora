@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { P, font, fmt, fmtDate } from "../data/constants";
+import { P, font, fontHeading, fmt, fmtDate } from "../data/constants";
 import { TextInput } from "../components/ui";
 import { storage } from "../lib/storage";
 
@@ -45,7 +45,7 @@ export default function QuotesList() {
         </button>
       </div>
       <div style={{ marginBottom: 16 }}>
-        <h2 style={{ margin: "0 0 4px", fontSize: 20, fontWeight: 800, color: P.text, fontFamily: font }}>Mis cotizaciones</h2>
+        <h2 style={{ margin: "0 0 4px", fontSize: 20, fontWeight: 700, color: P.text, fontFamily: fontHeading }}>Mis cotizaciones</h2>
         <div style={{ fontSize: 12, color: P.textDim, fontFamily: font }}>
           {quotes.length} cotización{quotes.length !== 1 ? "es" : ""} guardada{quotes.length !== 1 ? "s" : ""}
         </div>
@@ -64,6 +64,7 @@ export default function QuotesList() {
           style={{
             background: P.card, borderRadius: 12, padding: "14px 16px", marginBottom: 10,
             border: `1px solid ${P.border}`, cursor: "pointer", position: "relative",
+            boxShadow: P.shadow, transition: "box-shadow .15s ease",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>

@@ -13,9 +13,9 @@ html {
 
 body {
   margin: 0;
-  background: #0a0f0e;
-  color: #ecfdf5;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #F8FAFC;
+  color: #0F172A;
+  font-family: "Open Sans", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 input[type="number"]::-webkit-inner-spin-button,

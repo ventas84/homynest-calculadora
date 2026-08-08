@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   C, PRESETS, EXTRAS, DEFAULT_TERMS, DEFAULT_TERMS_CASA,
-  DEFAULT_HEADER_TEXT, DEFAULT_VALIDEZ, P, font, fmt, fmtNum, genId,
+  DEFAULT_HEADER_TEXT, DEFAULT_VALIDEZ, P, font, fontHeading, fmt, fmtNum, genId,
 } from "../data/constants";
 import {
   MoneyInput, TextInput, NumInput, Toggle, Line, Section, SubHead,
@@ -222,15 +222,15 @@ function CalcModulos() {
         </div>
         <MoneyInput label="Precio final al cliente (neto + IVA)" value={precio} onChange={setPrecio} />
         {calc.bajoMargen && (
-          <div style={{ background: "#451A03", border: "1px solid #92400E", borderRadius: 8, padding: "10px 14px", marginTop: -8 }}>
-            <div style={{ fontSize: 13, color: "#EF4444", fontFamily: font, fontWeight: 700 }}>Margen bajo: {calc.margen.toFixed(1)}%</div>
-            <div style={{ fontSize: 12, color: "#FCD34D", fontFamily: font, marginTop: 4, lineHeight: 1.5 }}>
-              Estás por debajo del {margenObj}% objetivo. Sube el precio a al menos <strong style={{ color: "#14B8A6" }}>{fmt(calc.precioMinimo)}</strong> o reduce costos.
+          <div style={{ background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 8, padding: "12px 14px", marginTop: -8 }}>
+            <div style={{ fontSize: 13, color: "#DC2626", fontFamily: font, fontWeight: 700 }}>Margen bajo: {calc.margen.toFixed(1)}%</div>
+            <div style={{ fontSize: 12, color: "#991B1B", fontFamily: font, marginTop: 4, lineHeight: 1.5 }}>
+              Estas por debajo del {margenObj}% objetivo. Sube el precio a al menos <strong style={{ color: P.accent }}>{fmt(calc.precioMinimo)}</strong> o reduce costos.
             </div>
             <button
               onClick={() => setPrecio(calc.precioMinimo)}
               style={{
-                marginTop: 10, background: "#14B8A6", color: "#0F1419", border: "none", padding: "8px 16px",
+                marginTop: 10, background: P.accent, color: "#FFFFFF", border: "none", padding: "8px 16px",
                 borderRadius: 6, cursor: "pointer", fontFamily: font, fontSize: 12, fontWeight: 700,
               }}
             >
@@ -261,8 +261,8 @@ function CalcModulos() {
             <span style={{ fontSize: 16, fontWeight: 700, fontFamily: font, letterSpacing: "-0.02em", color: calc.bajoMargen ? "#EF4444" : P.accent }}>
               {calc.margen.toFixed(1)}%
             </span>
-            {!calc.bajoMargen && <span style={{ fontSize: 10, background: "#0F766E", color: "#14B8A6", padding: "2px 8px", borderRadius: 10, fontWeight: 700, fontFamily: font }}>OK</span>}
-            {calc.bajoMargen && <span style={{ fontSize: 10, background: "#451A03", color: "#EF4444", padding: "2px 8px", borderRadius: 10, fontWeight: 700, fontFamily: font }}>BAJO</span>}
+            {!calc.bajoMargen && <span style={{ fontSize: 10, background: "#DCFCE7", color: "#16A34A", padding: "2px 8px", borderRadius: 10, fontWeight: 700, fontFamily: font }}>OK</span>}
+            {calc.bajoMargen && <span style={{ fontSize: 10, background: "#FEF2F2", color: "#DC2626", padding: "2px 8px", borderRadius: 10, fontWeight: 700, fontFamily: font }}>BAJO</span>}
           </div>
         </div>
       </Section>
@@ -309,9 +309,10 @@ function CalcModulos() {
         <button
           onClick={() => setShowModal(true)}
           style={{
-            width: "100%", padding: "16px 20px", background: P.accent, color: P.bg,
-            border: "none", borderRadius: 12, fontFamily: font, fontSize: 15, fontWeight: 800,
-            letterSpacing: "-0.01em", cursor: "pointer", boxShadow: "0 8px 20px rgba(74,222,128,0.25)",
+            width: "100%", padding: "16px 20px", background: P.accent, color: "#FFFFFF",
+            border: "none", borderRadius: 12, fontFamily: fontHeading, fontSize: 15, fontWeight: 700,
+            letterSpacing: "-0.01em", cursor: "pointer", boxShadow: "0 4px 16px rgba(234,88,12,.3)",
+            transition: "all .15s ease",
           }}
         >
           Generar cotización para cliente
@@ -494,9 +495,10 @@ function CalcCasa() {
         <button
           onClick={() => setShowModal(true)}
           style={{
-            width: "100%", padding: "16px 20px", background: P.accent, color: P.bg,
-            border: "none", borderRadius: 12, fontFamily: font, fontSize: 15, fontWeight: 800,
-            cursor: "pointer", boxShadow: "0 8px 20px rgba(74,222,128,0.25)",
+            width: "100%", padding: "16px 20px", background: P.accent, color: "#FFFFFF",
+            border: "none", borderRadius: 12, fontFamily: fontHeading, fontSize: 15, fontWeight: 700,
+            cursor: "pointer", boxShadow: "0 4px 16px rgba(234,88,12,.3)",
+            transition: "all .15s ease",
           }}
         >
           Generar cotización casa

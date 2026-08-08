@@ -1,5 +1,5 @@
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { P, font } from "./data/constants";
+import { P, font, fontHeading } from "./data/constants";
 import CalculatorPage from "./pages/Calculator";
 import QuotesList from "./pages/QuotesList";
 import QuoteView from "./pages/QuoteView";
@@ -23,13 +23,13 @@ export default function App() {
       }}
     >
       {!isQuoteView && (
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: P.accent }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: P.accent, fontFamily: fontHeading }}>
                 HOMYNEST
               </div>
-              <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: "-0.03em", color: P.text }}>
+              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, letterSpacing: "-0.03em", color: P.text, fontFamily: fontHeading }}>
                 {location.pathname === "/cotizaciones" ? "Cotizaciones" : "Calculadora"}
               </h1>
             </div>
@@ -38,13 +38,15 @@ export default function App() {
               style={{
                 background: P.card,
                 border: `1px solid ${P.border}`,
-                color: P.text,
-                padding: "8px 12px",
+                color: P.primaryDark,
+                padding: "8px 14px",
                 borderRadius: 8,
                 cursor: "pointer",
-                fontSize: 12,
+                fontSize: 13,
                 fontFamily: font,
                 fontWeight: 600,
+                boxShadow: P.shadow,
+                transition: "all .15s ease",
               }}
             >
               {location.pathname === "/cotizaciones" ? "Calculadora" : "Mis cotizaciones"}

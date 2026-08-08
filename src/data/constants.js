@@ -129,17 +129,26 @@ export const DEFAULT_HEADER_TEXT =
 export const DEFAULT_VALIDEZ = "6 meses";
 
 export const P = {
-  bg: "#0A0F0E",
-  card: "#111917",
-  cardAlt: "#182220",
-  accent: "#14B8A6",
-  text: "#ECFDF5",
-  textMuted: "#86EFAC",
-  textDim: "#4A7A6A",
-  border: "#1E3530",
-  inputBg: "#0D1412",
-  warn: "#F59E0B",
-  info: "#0EA5E9",
+  bg: "#F8FAFC",
+  card: "#FFFFFF",
+  cardAlt: "#EBF0F5",
+  accent: "#EA580C",
+  accentHover: "#DC4A04",
+  primary: "#64748B",
+  primaryDark: "#334155",
+  text: "#0F172A",
+  textMuted: "#64748B",
+  textDim: "#94A3B8",
+  border: "#E2E8F0",
+  inputBg: "#FFFFFF",
+  warn: "#D97706",
+  info: "#0284C7",
+  success: "#16A34A",
+  destructive: "#DC2626",
+  ring: "#64748B",
+  shadow: "0 1px 3px rgba(15,23,42,.08), 0 1px 2px rgba(15,23,42,.04)",
+  shadowMd: "0 4px 12px rgba(15,23,42,.08), 0 2px 4px rgba(15,23,42,.04)",
+  shadowLg: "0 10px 24px rgba(15,23,42,.1), 0 4px 8px rgba(15,23,42,.05)",
 };
 
 export const B = {
@@ -154,4 +163,5 @@ export const B = {
   bg: "#FFFFFF",
 };
 
-export const font = "'Inter',-apple-system,BlinkMacSystemFont,sans-serif";
+export const font = "'Open Sans',-apple-system,BlinkMacSystemFont,sans-serif";
+export const fontHeading = "'Poppins','Open Sans',-apple-system,sans-serif";
