@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   EXTRAS, DEFAULT_TERMS, DEFAULT_HEADER_TEXT, DEFAULT_VALIDEZ,
   C, B, P, font, fontHeading, fmt, fmtNum, fmtDate,
 } from "../data/constants";
 import { HomyNestLogo } from "../components/ui";
 import { storage } from "../lib/storage";
+import FloorPlan36 from "../components/FloorPlan36";
 
 function escapeHTML(str) {
   if (typeof str !== "string") return String(str);
@@ -254,6 +256,7 @@ export default function QuoteView() {
   const [quote, setQuote] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [section, setSection] = useState("presupuesto");
   const [editingTerms, setEditingTerms] = useState(false);
   const [tempTerms, setTempTerms] = useState([]);
   const [editingHeader, setEditingHeader] = useState(false);
@@ -385,7 +388,41 @@ export default function QuoteView() {
         </div>
       </div>
 
-      {/* ═══════════ QUOTE DOCUMENT (replica PDF) ═══════════ */}
+      {/* ═══════════ SECTION TABS ═══════════ */}
+      <div className="no-print" style={{ display: "flex", gap: 0, marginBottom: 20, background: P.cardAlt, borderRadius: 10, padding: 4, border: `1px solid ${P.border}` }}>
+        {[
+          { key: "presupuesto", label: "Presupuesto" },
+          { key: "plano", label: "Plano" },
+          { key: "galeria", label: "Galería" },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setSection(tab.key)}
+            style={{
+              flex: 1, padding: "10px 12px", border: "none", borderRadius: 8,
+              background: section === tab.key ? P.card : "transparent",
+              color: section === tab.key ? P.text : P.textMuted,
+              fontFamily: font, fontSize: 13, fontWeight: section === tab.key ? 700 : 500,
+              cursor: "pointer", transition: "all .2s ease",
+              boxShadow: section === tab.key ? P.shadow : "none",
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+
+      {/* ═══════════ PRESUPUESTO ═══════════ */}
+      {section === "presupuesto" && (
+      <motion.div
+        key="presupuesto"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: 20 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      >
       <div className="quote-doc" style={{ background: "#fff", overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,.1)", fontFamily: font, color: "#1A1A1A" }}>
 
         {/* Green header */}
@@ -550,6 +587,70 @@ export default function QuoteView() {
           )}
         </div>
       </div>
+      </motion.div>
+      )}
+
+      {/* ═══════════ PLANO ═══════════ */}
+      {section === "plano" && (
+        <motion.div
+          key="plano"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 20 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          style={{ background: P.card, borderRadius: 12, padding: "32px 24px", boxShadow: P.shadowMd, border: `1px solid ${P.border}` }}
+        >
+          <FloorPlan36 active={section === "plano"} />
+        </motion.div>
+      )}
+
+      {/* ═══════════ GALERÍA ═══════════ */}
+      {section === "galeria" && (
+        <motion.div
+          key="galeria"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 20 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          style={{ background: P.card, borderRadius: 12, padding: "32px 24px", boxShadow: P.shadowMd, border: `1px solid ${P.border}` }}
+        >
+          <div style={{ textAlign: "center", fontFamily: font }}>
+            <div style={{ fontSize: 11, letterSpacing: "0.14em", color: P.textMuted, textTransform: "uppercase", marginBottom: 6 }}>
+              Galería del proyecto
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: P.text, letterSpacing: "-0.02em", marginBottom: 8 }}>
+              {quote.modelName}
+            </div>
+            <div style={{ fontSize: 13, color: P.textDim, marginBottom: 32 }}>
+              Fotos y renders del modelo
+            </div>
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12,
+            }}>
+              {[1, 2, 3, 4].map((i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1, duration: 0.4 }}
+                  style={{
+                    aspectRatio: "4/3", background: P.cardAlt, borderRadius: 10,
+                    border: `1px solid ${P.border}`, display: "flex", alignItems: "center",
+                    justifyContent: "center", color: P.textDim, fontSize: 12,
+                  }}
+                >
+                  Foto {i}
+                </motion.div>
+              ))}
+            </div>
+            <div style={{ marginTop: 24, fontSize: 12, color: P.textDim, fontStyle: "italic" }}>
+              Agrega fotos del modelo en la carpeta del proyecto para que aparezcan aquí
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      </AnimatePresence>
     </>
   );
 }
