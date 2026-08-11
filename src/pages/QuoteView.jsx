@@ -19,7 +19,7 @@ function escapeHTML(str) {
 function boldHeaderHTML(text) {
   let s = escapeHTML(text);
   s = s.replace(/(&quot;llave en mano&quot;|"llave en mano")/gi, '<strong>"llave en mano"</strong>');
-  s = s.replace(/(\d+[,,]\d+\s*UF)/gi, "<strong>$1</strong>");
+  s = s.replace(/(\d+[,,]?\d*\s*UF)/gi, "<strong>$1</strong>");
   return s;
 }
 
@@ -28,7 +28,7 @@ function BoldHeaderText({ text }) {
   let rest = text;
   const patterns = [
     { re: /"llave en mano"/i, bold: true },
-    { re: /\d+[,]\d+\s*UF/i, bold: true },
+    { re: /\d+[,]?\d*\s*UF/i, bold: true },
   ];
   let key = 0;
   while (rest.length > 0) {

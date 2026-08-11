@@ -27,8 +27,8 @@ export const C = {
   viaticos: 200000,
   terrazaMt2: 85000,
   casaUf: 18,
-  modUf: 16.5,
-  uf: 40000,
+  modUf: 16,
+  uf: 39640,
 };
 
 export const PRESETS = [
@@ -42,7 +42,7 @@ export const PRESETS = [
       inclCocina: true, valCocina: 380000, banos: 1, valBano: 100000,
       inclVent: true, valVent: 1800000, inclHoja: true, valHoja: 400000,
       inclApoyos: true, valApoyo: 180000, cantApoyos: 2, viaticos: 200000,
-      precio: 23500000,
+      precio: 21990000,
     },
   },
   {
@@ -98,16 +98,16 @@ export const EXTRAS = [
 ];
 
 export const DEFAULT_TERMS = [
-  'Se considera formato "llave en mano"',
+  'Se considera formato "llave en mano".',
   "El tiempo para la ejecución de la construcción es de 35 días hábiles.",
   "Incluye fundaciones de hormigón prefabricado sobre estructura de madera.",
+  "Incluye mueble cocina con lavaplatos y cocina encimera de 2 platos.",
   "No incluye provisión e instalación de fosa.",
   "No incluye terraza.",
-  "Incluye mueble cocina con lavaplatos y cocina encimera de 2 platos.",
   "No considera ingreso municipal.",
   "No considera cálculo estructural.",
   "No considera pago de derechos municipales.",
-  "No considera empalmes ni proyectos de especialidades (T1 (luz), TC6 (gas), factibilidad de Agua y Alcantarillado).",
+  "No considera proyectos de especialidades (T1 — luz, TC6 — gas, factibilidad de Agua y Alcantarillado).",
   "Presupuesto considerado con envío e instalación para las regiones de la Araucanía y Los Ríos. En el rango fuera de esa zona se debe considerar un adicional por transporte y viáticos.",
 ];
 
@@ -125,7 +125,7 @@ export const DEFAULT_TERMS_CASA = [
 ];
 
 export const DEFAULT_HEADER_TEXT =
-  'Valor establecido "llave en mano" de 16,5 UF por metro cuadrado. UF al día: $40.000';
+  'Valor establecido "llave en mano" de 16 UF por metro cuadrado. UF al día: $39.640';
 export const DEFAULT_VALIDEZ = "6 meses";
 
 export const P = {
