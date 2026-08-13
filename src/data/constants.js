@@ -27,7 +27,7 @@ export const C = {
   viaticos: 200000,
   terrazaMt2: 85000,
   casaUf: 18,
-  modUf: 16,
+  modUf: 17,
   uf: 39640,
 };
 
@@ -125,7 +125,7 @@ export const DEFAULT_TERMS_CASA = [
 ];
 
 export const DEFAULT_HEADER_TEXT =
-  'Valor establecido "llave en mano" de 16 UF por metro cuadrado. UF al día: $39.640';
+  'Valor establecido "llave en mano" de 17 UF por metro cuadrado.';
 export const DEFAULT_VALIDEZ = "6 meses";
 
 export const P = {

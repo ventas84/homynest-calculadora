@@ -10,6 +10,7 @@ import { storage } from "../lib/storage";
 import FloorPlan36 from "../components/FloorPlan36";
 import GaleriaSection from "../components/GaleriaSection";
 import CinematicScroll from "../components/CinematicScroll";
+import { useUf } from "../lib/uf";
 
 function escapeHTML(str) {
   if (typeof str !== "string") return String(str);
@@ -51,19 +52,21 @@ function BoldHeaderText({ text }) {
   return <>{parts}</>;
 }
 
-function projectInfo(quote) {
+function projectInfo(quote, liveUf) {
+  const ufVal = liveUf || C.uf;
   const items = quote.items || {};
   const isCasa = quote.quoteType === "casa" && quote.casa;
   const totalMod = quote.totalModulos || 1;
   const mt2 = quote.mt2 || 0;
 
   if (isCasa) {
+    const precioTabla = mt2 * C.casaUf * ufVal;
     return {
       isCasa: true,
       title: `CASA DE ${mt2} METROS CUADRADOS`,
       dims: quote.casa.dims,
       prog: quote.casa.prog,
-      precioTabla: Math.max(mt2 * C.casaUf * C.uf, quote.totals.precio),
+      precioTabla: Math.max(precioTabla, quote.totals.precio),
     };
   }
 
@@ -84,14 +87,17 @@ function projectInfo(quote) {
   const prog = `${totalMod > 1 ? totalMod : 1} dormitorio${totalMod > 1 ? "s" : ""}, ${banos} baño${banos !== 1 ? "s" : ""}, living-comedor-cocina`;
   const dimsUp = dims.replace(/ x /i, "X").toUpperCase();
   const title = `${totalMod} MÓDULO${totalMod > 1 ? "S" : ""}, ${mt2} METROS CUADRADOS (${dimsUp})`;
-  const precioTabla = Math.max(mt2 * C.modUf * C.uf, quote.totals.precio);
+  const precioTabla = mt2 * C.modUf * ufVal;
 
-  return { isCasa: false, title, dims, prog, precioTabla };
+  return { isCasa: false, title, dims, prog, precioTabla: Math.max(precioTabla, quote.totals.precio) };
 }
 
-function buildStandaloneHTML(quote) {
+function buildStandaloneHTML(quote, liveUf) {
   const t = quote.totals;
-  const info = projectInfo(quote);
+  const ufVal = liveUf || C.uf;
+  const info = projectInfo(quote, ufVal);
+  const headerLine = `Valor establecido "llave en mano" de ${C.modUf} UF por metro cuadrado. UF al día: ${fmt(ufVal)}`;
+  const clientLoc = quote.comuna ? `${escapeHTML(quote.comuna.nombre)}, ${escapeHTML(quote.comuna.region)}` : "";
 
   const termsHTML = quote.terms.map((term) => `<li>${escapeHTML(term)}</li>`).join("");
 
@@ -193,8 +199,8 @@ body{font-family:'Open Sans',-apple-system,sans-serif;background:#F5F1E8;padding
   <div class="green-header">
     <div class="brand-row">
       <div class="brand">
-        <svg width="48" height="48" viewBox="0 0 42 42" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
-          <path d="M6 34 L6 18 L21 8 L36 18 L36 34 Z"/><path d="M6 18 L21 26 L36 18"/><path d="M21 26 L21 34"/>
+        <svg width="48" height="48" viewBox="0 0 80 80" fill="none" stroke="#fff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">
+          <path d="M 10 50 Q 40 76 70 50 L 70 26 L 10 10 Z"/>
         </svg>
         <span>HomyNest</span>
       </div>
@@ -202,7 +208,7 @@ body{font-family:'Open Sans',-apple-system,sans-serif;background:#F5F1E8;padding
     </div>
     <div class="header-divider"></div>
     <div class="header-cols">
-      <div class="header-text">${boldHeaderHTML(quote.headerText)}</div>
+      <div class="header-text">${boldHeaderHTML(headerLine)}</div>
       <div class="header-meta">
         <div><strong><em>Fecha:</em></strong> ${escapeHTML(fmtDate(quote.createdAt))}</div>
         <div><strong><em>Validez:</em></strong> ${escapeHTML(quote.validez)}</div>
@@ -215,9 +221,17 @@ body{font-family:'Open Sans',-apple-system,sans-serif;background:#F5F1E8;padding
         <span class="project-label">PROYECTO:</span>
         <span class="project-name">${escapeHTML(info.title)}</span>
       </div>
-      <div class="studio">Homy Nest Studio</div>
-      <div class="studio">Cristóbal Letelier G</div>
-      <div class="studio">Patente 3-4240</div>
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div class="studio">Homy Nest Studio</div>
+          <div class="studio">Cristóbal Letelier G</div>
+          <div class="studio">Patente 3-4240</div>
+        </div>
+        <div style="text-align:right">
+          <div class="studio"><strong>Cliente:</strong> ${escapeHTML(quote.client.name)}</div>
+          ${clientLoc ? `<div class="studio"><strong>Ubicación:</strong> ${clientLoc}</div>` : ""}
+        </div>
+      </div>
     </div>
     <div class="table-sep"></div>
     <div class="budget-table reveal">
@@ -255,6 +269,7 @@ setTimeout(()=>{document.querySelectorAll('.reveal').forEach(el=>el.classList.ad
 export default function QuoteView() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { uf: liveUf } = useUf();
   const [quote, setQuote] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -330,7 +345,7 @@ export default function QuoteView() {
   };
 
   const downloadHTML = () => {
-    const html = buildStandaloneHTML(quote);
+    const html = buildStandaloneHTML(quote, liveUf);
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -344,8 +359,10 @@ export default function QuoteView() {
   };
 
   const t = quote.totals;
-  const info = projectInfo(quote);
+  const info = projectInfo(quote, liveUf);
   const descLabel = info.isCasa ? "Casa" : "Módulo";
+  const headerLine = `Valor establecido "llave en mano" de ${C.modUf} UF por metro cuadrado. UF al día: ${fmt(liveUf)}`;
+  const clientLocation = quote.comuna ? `${quote.comuna.nombre}, ${quote.comuna.region}` : "";
 
   return (
     <>
@@ -438,34 +455,22 @@ export default function QuoteView() {
       <div className="quote-doc" style={{ background: "#fff", overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,.1)", fontFamily: font, color: "#1A1A1A" }}>
 
         {/* Green header */}
-        <div style={{ background: B.darkGreen, padding: "36px 44px 30px", color: "#fff", animation: "fadeUp .6s cubic-bezier(.16,1,.3,1) both" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
+        <div style={{ background: B.darkGreen, padding: "32px 40px 26px", color: "#fff", animation: "fadeUp .6s cubic-bezier(.16,1,.3,1) both" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <HomyNestLogo color="#fff" size={48} />
               <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.02em" }}>HomyNest</div>
             </div>
             <div style={{ fontSize: 22, fontWeight: 700 }}>www.homynest.cl</div>
           </div>
-          <div style={{ height: 1, background: "rgba(255,255,255,0.2)", margin: "0 0 20px" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
-            <div style={{ flex: "1 1 55%", minWidth: 0 }}>
-              {editingHeader ? (
-                <div>
-                  <textarea value={tempHeader} onChange={(e) => setTempHeader(e.target.value)} rows={3} style={{ width: "100%", background: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 6, padding: "8px 10px", fontSize: 13, fontFamily: font, outline: "none", resize: "vertical", boxSizing: "border-box" }} />
-                  <div style={{ marginTop: 8, display: "flex", gap: 6 }} className="no-print">
-                    <button onClick={saveHeader} style={{ background: B.green, color: B.ink, border: "none", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 12, fontFamily: font, fontWeight: 700 }}>Guardar</button>
-                    <button onClick={cancelHeader} style={{ background: "transparent", color: "#fff", border: "1px solid rgba(255,255,255,0.3)", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 12, fontFamily: font }}>Cancelar</button>
-                  </div>
-                </div>
-              ) : (
-                <div onClick={() => setEditingHeader(true)} className="edit-hover" style={{ fontSize: 13, lineHeight: 1.6, cursor: "pointer", padding: "4px 6px", borderRadius: 4, marginLeft: -6, transition: "background .2s" }} title="Click para editar">
-                  <BoldHeaderText text={quote.headerText} />
-                </div>
-              )}
+          <div style={{ height: 1, background: "rgba(255,255,255,0.2)", margin: "0 0 16px" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 60%", minWidth: 0, fontSize: 13, lineHeight: 1.5 }}>
+              <BoldHeaderText text={headerLine} />
             </div>
-            <div style={{ textAlign: "right", fontSize: 13, lineHeight: 1.8 }}>
-              <div><strong><em>Fecha:</em></strong> {editingHeader ? <input value={tempValidez} onChange={() => {}} style={{ display: "none" }} /> : null}{fmtDate(quote.createdAt)}</div>
-              <div><strong><em>Validez:</em></strong> {editingHeader ? <input value={tempValidez} onChange={(e) => setTempValidez(e.target.value)} style={{ width: 80, background: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 4, padding: "2px 6px", fontSize: 12, fontFamily: font, marginLeft: 4 }} /> : quote.validez}</div>
+            <div style={{ textAlign: "right", fontSize: 13, lineHeight: 1.8, flexShrink: 0 }}>
+              <div><strong><em>Fecha:</em></strong> {fmtDate(quote.createdAt)}</div>
+              <div><strong><em>Validez:</em></strong> {quote.validez}</div>
             </div>
           </div>
         </div>
@@ -479,10 +484,16 @@ export default function QuoteView() {
               <span style={{ fontSize: 12, letterSpacing: "0.1em", fontWeight: 800 }}>PROYECTO: &nbsp;&nbsp;</span>
               <span style={{ fontSize: 21, fontWeight: 900, letterSpacing: "-0.01em" }}>{info.title}</span>
             </div>
-            <div style={{ fontSize: 14, color: "#444", lineHeight: 1.7 }}>
-              Homy Nest Studio<br />
-              Cristóbal Letelier G<br />
-              Patente 3-4240
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+              <div style={{ fontSize: 14, color: "#444", lineHeight: 1.7 }}>
+                Homy Nest Studio<br />
+                Cristóbal Letelier G<br />
+                Patente 3-4240
+              </div>
+              <div style={{ fontSize: 14, color: "#444", lineHeight: 1.7, textAlign: "right" }}>
+                <div><strong>Cliente:</strong> {quote.client.name}</div>
+                {clientLocation && <div><strong>Ubicación:</strong> {clientLocation}</div>}
+              </div>
             </div>
           </div>
 

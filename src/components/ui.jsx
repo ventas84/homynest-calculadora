@@ -268,10 +268,8 @@ export function ComunaSearch({ selected, onSelect }) {
 
 export function HomyNestLogo({ color = "#A67C52", size = 38 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 42 42" fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round">
-      <path d="M6 34 L6 18 L21 8 L36 18 L36 34 Z" />
-      <path d="M6 18 L21 26 L36 18" />
-      <path d="M21 26 L21 34" />
+    <svg width={size} height={size} viewBox="0 0 80 80" fill="none" stroke={color} strokeWidth="3.5" strokeLinejoin="round" strokeLinecap="round">
+      <path d="M 10 50 Q 40 76 70 50 L 70 26 L 10 10 Z" />
     </svg>
   );
 }
