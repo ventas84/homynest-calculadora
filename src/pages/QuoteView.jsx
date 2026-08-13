@@ -156,7 +156,7 @@ body{font-family:'Open Sans',-apple-system,sans-serif;background:#F5F1E8;padding
 .project-row{margin-bottom:14px}
 .project-label{font-size:12px;letter-spacing:.1em;color:#1A1A1A;font-weight:800}
 .project-name{font-size:21px;font-weight:900;color:#1A1A1A;letter-spacing:-.01em}
-.studio{font-size:14px;color:#444;line-height:1.7}
+.project-details{font-size:14px;color:#444;line-height:1.9}
 .table-sep{height:1px;background:#1A1A1A;margin:20px 0 24px}
 .budget-table{margin-bottom:0}
 .budget-table table{width:100%;border-collapse:collapse}
@@ -208,29 +208,29 @@ body{font-family:'Open Sans',-apple-system,sans-serif;background:#F5F1E8;padding
     </div>
     <div class="header-divider"></div>
     <div class="header-cols">
-      <div class="header-text">${boldHeaderHTML(headerLine)}</div>
+      <div class="header-text">
+        <div>Valor establecido <strong>"llave en mano"</strong></div>
+        <div>de <strong>${C.modUf} UF</strong> por metro cuadrado.</div>
+        <div>UF al día: ${fmt(ufVal)}</div>
+      </div>
       <div class="header-meta">
-        <div><strong><em>Fecha:</em></strong> ${escapeHTML(fmtDate(quote.createdAt))}</div>
-        <div><strong><em>Validez:</em></strong> ${escapeHTML(quote.validez)}</div>
+        <div><strong>Fecha:</strong> ${escapeHTML(fmtDate(quote.createdAt))}</div>
+        <div><strong>Validez:</strong> ${escapeHTML(quote.validez)}</div>
       </div>
     </div>
   </div>
   <div class="body">
     <div class="project reveal">
-      <div class="project-row" style="text-align:center">
+      <div class="project-row">
         <span class="project-label">PROYECTO:</span>
         <span class="project-name">${escapeHTML(info.title)}</span>
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:40px">
-        <div>
-          <div class="studio">Homy Nest Studio</div>
-          <div class="studio">Cristóbal Letelier G</div>
-          <div class="studio">Patente 3-4240</div>
-        </div>
-        <div>
-          <div class="studio"><strong>Cliente:</strong> ${escapeHTML(quote.client.name)}</div>
-          ${clientLoc ? `<div class="studio"><strong>Ubicación:</strong> ${clientLoc}</div>` : ""}
-        </div>
+      <div class="project-details">
+        <div><strong>Cliente:</strong> ${escapeHTML(quote.client.name)}</div>
+        ${clientLoc ? `<div><strong>Ubicación:</strong> ${clientLoc}</div>` : ""}
+        <div><strong>Construcción:</strong> Homy Nest Studio</div>
+        <div><strong>Arquitecto:</strong> Cristóbal Letelier G.</div>
+        <div style="padding-left:84px">Patente 3-4240</div>
       </div>
     </div>
     <div class="table-sep"></div>
@@ -465,12 +465,14 @@ export default function QuoteView() {
           </div>
           <div style={{ height: 1, background: "rgba(255,255,255,0.2)", margin: "0 0 16px" }} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20 }}>
-            <div style={{ flex: "1 1 auto", fontSize: 13, lineHeight: 1.6 }}>
-              <BoldHeaderText text={headerLine} />
+            <div style={{ flex: "1 1 auto", fontSize: 13, lineHeight: 1.7 }}>
+              <div>Valor establecido <strong>"llave en mano"</strong></div>
+              <div>de <strong>{C.modUf} UF</strong> por metro cuadrado.</div>
+              <div>UF al día: {fmt(liveUf)}</div>
             </div>
             <div style={{ flexShrink: 0, textAlign: "right", fontSize: 13, lineHeight: 1.8 }}>
-              <div><strong><em>Fecha:</em></strong> {fmtDate(quote.createdAt)}</div>
-              <div><strong><em>Validez:</em></strong> {quote.validez}</div>
+              <div><strong>Fecha:</strong> {fmtDate(quote.createdAt)}</div>
+              <div><strong>Validez:</strong> {quote.validez}</div>
             </div>
           </div>
         </div>
@@ -480,20 +482,16 @@ export default function QuoteView() {
 
           {/* PROYECTO */}
           <div className="reveal" style={{ marginBottom: 0 }}>
-            <div style={{ textAlign: "center", marginBottom: 14 }}>
+            <div style={{ marginBottom: 14 }}>
               <span style={{ fontSize: 12, letterSpacing: "0.1em", fontWeight: 800 }}>PROYECTO: &nbsp;&nbsp;</span>
               <span style={{ fontSize: 21, fontWeight: 900, letterSpacing: "-0.01em" }}>{info.title}</span>
             </div>
-            <div style={{ display: "flex", alignItems: "flex-start", flexWrap: "wrap", gap: 40 }}>
-              <div style={{ fontSize: 14, color: "#444", lineHeight: 1.7 }}>
-                Homy Nest Studio<br />
-                Cristóbal Letelier G<br />
-                Patente 3-4240
-              </div>
-              <div style={{ fontSize: 14, color: "#444", lineHeight: 1.7 }}>
-                <div><strong>Cliente:</strong> {quote.client.name}</div>
-                {clientLocation && <div><strong>Ubicación:</strong> {clientLocation}</div>}
-              </div>
+            <div style={{ fontSize: 14, color: "#444", lineHeight: 1.9 }}>
+              <div><strong>Cliente:</strong> {quote.client.name}</div>
+              {clientLocation && <div><strong>Ubicación:</strong> {clientLocation}</div>}
+              <div><strong>Construcción:</strong> Homy Nest Studio</div>
+              <div><strong>Arquitecto:</strong> Cristóbal Letelier G.</div>
+              <div style={{ paddingLeft: 84 }}>Patente 3-4240</div>
             </div>
           </div>
 
