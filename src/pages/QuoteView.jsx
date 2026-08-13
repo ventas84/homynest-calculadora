@@ -9,7 +9,7 @@ import { HomyNestLogo } from "../components/ui";
 import { storage } from "../lib/storage";
 import FloorPlan36 from "../components/FloorPlan36";
 import GaleriaSection from "../components/GaleriaSection";
-import ScrollExpandHero from "../components/ScrollExpandHero";
+import CinematicScroll from "../components/CinematicScroll";
 
 function escapeHTML(str) {
   if (typeof str !== "string") return String(str);
@@ -258,7 +258,6 @@ export default function QuoteView() {
   const [quote, setQuote] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
-  const [heroDone, setHeroDone] = useState(false);
   const [section, setSection] = useState("presupuesto");
   const [editingTerms, setEditingTerms] = useState(false);
   const [tempTerms, setTempTerms] = useState([]);
@@ -358,12 +357,14 @@ export default function QuoteView() {
         @media print { .no-print { display:none !important; } body, html { background:white !important; } .quote-doc { background:white !important; box-shadow:none !important; } .reveal { opacity:1 !important; transform:none !important; } }
       `}</style>
 
-      {!heroDone && <ScrollExpandHero quote={quote} onExpanded={() => setHeroDone(true)} />}
+      <CinematicScroll quote={quote} />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
-        animate={heroDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        style={{ maxWidth: 820, margin: "0 auto", padding: "20px 16px 40px" }}
       >
 
       <div className="no-print" style={{ marginBottom: 16 }}>
