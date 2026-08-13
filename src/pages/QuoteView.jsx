@@ -149,8 +149,9 @@ body{font-family:'Open Sans',-apple-system,sans-serif;background:#F5F1E8;padding
 .brand{display:flex;align-items:center;gap:14px;font-size:28px;font-weight:800;letter-spacing:-.02em}
 .web{font-size:22px;font-weight:700}
 .header-divider{height:1px;background:rgba(255,255,255,.2);margin:0 0 22px}
-.header-text{font-size:13px;line-height:1.6;margin-bottom:10px}
-.header-meta-row{display:flex;justify-content:flex-end;gap:24px;font-size:13px;line-height:1.8}
+.header-cols{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
+.header-text{flex:1 1 auto;font-size:13px;line-height:1.6}
+.header-meta{flex-shrink:0;text-align:right;font-size:13px;line-height:1.8}
 .body{padding:48px 44px}
 .project-row{margin-bottom:14px}
 .project-label{font-size:12px;letter-spacing:.1em;color:#1A1A1A;font-weight:800}
@@ -206,10 +207,12 @@ body{font-family:'Open Sans',-apple-system,sans-serif;background:#F5F1E8;padding
       <div class="web">www.homynest.cl</div>
     </div>
     <div class="header-divider"></div>
-    <div class="header-text">${boldHeaderHTML(headerLine)}</div>
-    <div class="header-meta-row">
-      <div><strong><em>Fecha:</em></strong> ${escapeHTML(fmtDate(quote.createdAt))}</div>
-      <div><strong><em>Validez:</em></strong> ${escapeHTML(quote.validez)}</div>
+    <div class="header-cols">
+      <div class="header-text">${boldHeaderHTML(headerLine)}</div>
+      <div class="header-meta">
+        <div><strong><em>Fecha:</em></strong> ${escapeHTML(fmtDate(quote.createdAt))}</div>
+        <div><strong><em>Validez:</em></strong> ${escapeHTML(quote.validez)}</div>
+      </div>
     </div>
   </div>
   <div class="body">
@@ -461,12 +464,14 @@ export default function QuoteView() {
             <div style={{ fontSize: 22, fontWeight: 700 }}>www.homynest.cl</div>
           </div>
           <div style={{ height: 1, background: "rgba(255,255,255,0.2)", margin: "0 0 16px" }} />
-          <div style={{ fontSize: 13, lineHeight: 1.5, marginBottom: 10 }}>
-            <BoldHeaderText text={headerLine} />
-          </div>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 24, fontSize: 13, lineHeight: 1.8 }}>
-            <div><strong><em>Fecha:</em></strong> {fmtDate(quote.createdAt)}</div>
-            <div><strong><em>Validez:</em></strong> {quote.validez}</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20 }}>
+            <div style={{ flex: "1 1 auto", fontSize: 13, lineHeight: 1.6 }}>
+              <BoldHeaderText text={headerLine} />
+            </div>
+            <div style={{ flexShrink: 0, textAlign: "right", fontSize: 13, lineHeight: 1.8 }}>
+              <div><strong><em>Fecha:</em></strong> {fmtDate(quote.createdAt)}</div>
+              <div><strong><em>Validez:</em></strong> {quote.validez}</div>
+            </div>
           </div>
         </div>
 
