@@ -418,27 +418,33 @@ export default function QuoteView() {
       </div>
 
       {/* ═══════════ SECTION TABS ═══════════ */}
-      <div className="no-print" style={{ display: "flex", gap: 0, marginBottom: 20, background: P.cardAlt, borderRadius: 10, padding: 4, border: `1px solid ${P.border}` }}>
+      <div className="no-print" style={{ display: "flex", gap: 6, marginBottom: 20 }}>
         {[
           { key: "presupuesto", label: "Presupuesto" },
-          { key: "plano", label: "Plano" },
+          { key: "plano", label: "Ver Plano", accent: true },
           { key: "galeria", label: "Galería" },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setSection(tab.key)}
-            style={{
-              flex: 1, padding: "10px 12px", border: "none", borderRadius: 8,
-              background: section === tab.key ? P.card : "transparent",
-              color: section === tab.key ? P.text : P.textMuted,
-              fontFamily: font, fontSize: 13, fontWeight: section === tab.key ? 700 : 500,
-              cursor: "pointer", transition: "all .2s ease",
-              boxShadow: section === tab.key ? P.shadow : "none",
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+        ].map((tab) => {
+          const isActive = section === tab.key;
+          const isAccent = tab.accent && !isActive;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setSection(tab.key)}
+              style={{
+                flex: 1, padding: "12px 14px", borderRadius: 10,
+                border: isAccent ? `2px solid ${B.darkGreen}` : isActive ? "none" : `1px solid ${P.border}`,
+                background: isActive ? B.darkGreen : isAccent ? "transparent" : P.cardAlt,
+                color: isActive ? "#fff" : isAccent ? B.darkGreen : P.textMuted,
+                fontFamily: font, fontSize: 13, fontWeight: isActive || isAccent ? 700 : 500,
+                cursor: "pointer", transition: "all .2s ease",
+                boxShadow: isActive ? "0 2px 8px rgba(42,74,71,.25)" : "none",
+                letterSpacing: isAccent ? "0.02em" : undefined,
+              }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       <AnimatePresence mode="wait">
@@ -647,9 +653,13 @@ export default function QuoteView() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 20 }}
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          style={{ background: P.card, borderRadius: 12, padding: "32px 24px", boxShadow: P.shadowMd, border: `1px solid ${P.border}` }}
+          style={{ background: P.card, borderRadius: 12, padding: "24px", boxShadow: P.shadowMd, border: `1px solid ${P.border}` }}
         >
-          <FloorPlan36 active={section === "plano"} />
+          <img
+            src="/fotos/plano.jpg"
+            alt={`Plano ${quote.modelName || quote.mt2 + " m²"}`}
+            style={{ width: "100%", height: "auto", borderRadius: 8, display: "block" }}
+          />
         </motion.div>
       )}
 
