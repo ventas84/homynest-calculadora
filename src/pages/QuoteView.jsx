@@ -296,18 +296,23 @@ export default function QuoteView() {
 
   useEffect(() => {
     if (!quote) return;
-    const els = document.querySelectorAll(".reveal");
     let io;
-    try {
-      io = new IntersectionObserver(
-        (entries) => { entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("reveal-in"); io.unobserve(e.target); } }); },
-        { threshold: 0.1 }
-      );
-      els.forEach((el) => io.observe(el));
-    } catch {}
-    const fallback = setTimeout(() => { els.forEach((el) => el.classList.add("reveal-in")); }, 600);
-    return () => { clearTimeout(fallback); io?.disconnect(); };
-  }, [quote]);
+    const setup = () => {
+      const els = document.querySelectorAll(".reveal:not(.reveal-in)");
+      if (els.length === 0) return;
+      try {
+        io = new IntersectionObserver(
+          (entries) => { entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("reveal-in"); io.unobserve(e.target); } }); },
+          { threshold: 0.1 }
+        );
+        els.forEach((el) => io.observe(el));
+      } catch {}
+    };
+    setup();
+    const retry = setTimeout(() => { setup(); }, 500);
+    const fallback = setTimeout(() => { document.querySelectorAll(".reveal:not(.reveal-in)").forEach((el) => el.classList.add("reveal-in")); }, 1000);
+    return () => { clearTimeout(retry); clearTimeout(fallback); io?.disconnect(); };
+  }, [quote, section]);
 
   const saveEdits = (updates) => {
     if (!quote) return;
@@ -382,8 +387,6 @@ export default function QuoteView() {
           .quote-doc .price-big { font-size: 20px !important; white-space: normal !important; }
           .quote-doc .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
           .quote-doc .table-wrap table { min-width: 480px; }
-          .tabs-row { gap: 4px !important; }
-          .tabs-row button { padding: 10px 8px !important; font-size: 12px !important; }
         }
       `}</style>
 
@@ -411,36 +414,6 @@ export default function QuoteView() {
           {quote.client.phone && <span style={{ color: P.textMuted, marginLeft: 12 }}>{quote.client.phone}</span>}
           <span style={{ color: P.textDim, marginLeft: 12, fontSize: 11 }}>N° {quote.id}</span>
         </div>
-      </div>
-
-      {/* ═══════════ SECTION TABS ═══════════ */}
-      <div className="no-print tabs-row" style={{ display: "flex", gap: 6, marginBottom: 20 }}>
-        {[
-          { key: "presupuesto", label: "Presupuesto" },
-          { key: "plano", label: "Ver Plano", accent: true },
-          { key: "galeria", label: "Galería" },
-        ].map((tab) => {
-          const isActive = section === tab.key;
-          const isAccent = tab.accent && !isActive;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setSection(tab.key)}
-              style={{
-                flex: 1, padding: "12px 14px", borderRadius: 10,
-                border: isAccent ? `2px solid ${B.darkGreen}` : isActive ? "none" : `1px solid ${P.border}`,
-                background: isActive ? B.darkGreen : isAccent ? "transparent" : P.cardAlt,
-                color: isActive ? "#fff" : isAccent ? B.darkGreen : P.textMuted,
-                fontFamily: font, fontSize: 13, fontWeight: isActive || isAccent ? 700 : 500,
-                cursor: "pointer", transition: "all .2s ease",
-                boxShadow: isActive ? "0 2px 8px rgba(42,74,71,.25)" : "none",
-                letterSpacing: isAccent ? "0.02em" : undefined,
-              }}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
       </div>
 
       <AnimatePresence mode="wait">
@@ -636,7 +609,7 @@ export default function QuoteView() {
             </a>
             <div style={{ display: "flex", gap: 10, width: "100%" }}>
               <button
-                onClick={() => { setSection("plano"); window.scrollTo({ top: document.querySelector(".tabs-row")?.offsetTop - 20, behavior: "smooth" }); }}
+                onClick={() => { setSection("plano"); window.scrollTo({ top: document.querySelector(".quote-doc")?.offsetTop - 20, behavior: "smooth" }); }}
                 style={{
                   flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                   background: "transparent", color: B.darkGreen, border: `2px solid ${B.darkGreen}`,
@@ -652,7 +625,7 @@ export default function QuoteView() {
                 Ver Plano
               </button>
               <button
-                onClick={() => { setSection("galeria"); window.scrollTo({ top: document.querySelector(".tabs-row")?.offsetTop - 20, behavior: "smooth" }); }}
+                onClick={() => { setSection("galeria"); window.scrollTo({ top: document.querySelector(".quote-doc")?.offsetTop - 20, behavior: "smooth" }); }}
                 style={{
                   flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                   background: "transparent", color: B.darkGreen, border: `2px solid ${B.darkGreen}`,
@@ -689,6 +662,18 @@ export default function QuoteView() {
             alt={`Plano ${quote.modelName || quote.mt2 + " m²"}`}
             style={{ width: "100%", height: "auto", borderRadius: 8, display: "block" }}
           />
+          <button
+            className="no-print"
+            onClick={() => setSection("presupuesto")}
+            style={{
+              marginTop: 16, display: "flex", alignItems: "center", gap: 8, justifyContent: "center",
+              width: "100%", background: B.darkGreen, color: "#fff", border: "none",
+              padding: "12px 16px", borderRadius: 8, fontSize: 13, fontWeight: 700,
+              fontFamily: font, cursor: "pointer",
+            }}
+          >
+            ← Volver al Presupuesto
+          </button>
         </motion.div>
       )}
 
@@ -703,6 +688,18 @@ export default function QuoteView() {
           style={{ background: P.card, borderRadius: 12, padding: "32px 24px", boxShadow: P.shadowMd, border: `1px solid ${P.border}` }}
         >
           <GaleriaSection quote={quote} />
+          <button
+            className="no-print"
+            onClick={() => setSection("presupuesto")}
+            style={{
+              marginTop: 20, display: "flex", alignItems: "center", gap: 8, justifyContent: "center",
+              width: "100%", background: B.darkGreen, color: "#fff", border: "none",
+              padding: "12px 16px", borderRadius: 8, fontSize: 13, fontWeight: 700,
+              fontFamily: font, cursor: "pointer",
+            }}
+          >
+            ← Volver al Presupuesto
+          </button>
         </motion.div>
       )}
 

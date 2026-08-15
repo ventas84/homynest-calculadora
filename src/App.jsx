@@ -8,7 +8,6 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const isQuoteView = location.pathname.startsWith("/cotizacion/");
-  const isFullWidth = isQuoteView;
 
   return (
     <div
@@ -17,14 +16,14 @@ export default function App() {
         background: P.bg,
         color: P.text,
         fontFamily: font,
-        padding: isFullWidth ? 0 : "20px 16px 40px",
-        maxWidth: isFullWidth ? "none" : 520,
+        padding: isQuoteView ? 0 : "20px 16px 40px",
+        maxWidth: isQuoteView ? "none" : 520,
         margin: "0 auto",
-        overflow: isFullWidth ? "visible" : undefined,
+        overflow: isQuoteView ? "visible" : undefined,
         boxSizing: "border-box",
       }}
     >
-      {!isFullWidth && (
+      {!isQuoteView && (
         <div style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
             <div>
@@ -63,7 +62,7 @@ export default function App() {
         <Route path="/cotizacion/:id" element={<QuoteView />} />
       </Routes>
 
-      {!isFullWidth && (
+      {!isQuoteView && (
         <div style={{ textAlign: "center", marginTop: 20, fontSize: 10, color: P.textDim, fontFamily: font }}>
           Datos enlazados a "Valor transporte por comuna" · Modelos 2026
         </div>
