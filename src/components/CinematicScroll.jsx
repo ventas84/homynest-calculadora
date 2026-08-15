@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useSpring, AnimatePresence } from "framer-motion";
 import { B, font, fontHeading } from "../data/constants";
+import { HomyNestLogo } from "./ui";
 
 const CHAPTER_POSTERS = {
   m36: ["/fotos/m36-exterior.png", "/fotos/m54-exterior.png", "/fotos/m54-terraza.png"],
@@ -206,6 +207,21 @@ export default function CinematicScroll({ quote }) {
       {/* Sticky video background */}
       <div style={{ position: "sticky", top: 0, height: "100vh", width: "100%", overflow: "hidden" }}>
         <VideoBackground chapters={chapters} currentIndex={activeIndex} />
+        {/* Brand overlay */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
+          style={{
+            position: "absolute", top: isMobile ? 20 : 32, left: isMobile ? 24 : 96,
+            zIndex: 40, display: "flex", alignItems: "center", gap: 12,
+          }}
+        >
+          <HomyNestLogo color="#fff" size={isMobile ? 30 : 38} />
+          <span style={{ color: "#fff", fontSize: isMobile ? 18 : 24, fontWeight: 800, letterSpacing: "-0.02em", fontFamily: font, textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}>
+            HomyNest
+          </span>
+        </motion.div>
       </div>
 
       {/* Bottom nav */}
