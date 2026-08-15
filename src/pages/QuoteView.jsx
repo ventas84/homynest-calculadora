@@ -584,16 +584,14 @@ export default function QuoteView() {
 
           {/* Links: EETT, Plano, Galería */}
           <div className="reveal" style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 32, marginBottom: 8, alignItems: "center" }}>
-            <a
-              href="/docs/eett-modulos-2026.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => { setSection("eett"); window.scrollTo({ top: document.querySelector(".quote-doc")?.offsetTop - 20, behavior: "smooth" }); }}
               style={{
                 display: "inline-flex", alignItems: "center", gap: 10, width: "100%", justifyContent: "center",
-                background: B.darkGreen, color: "#fff", textDecoration: "none",
+                background: B.darkGreen, color: "#fff", border: "none",
                 padding: "14px 28px", borderRadius: 8, fontSize: 14, fontWeight: 700,
                 fontFamily: font, letterSpacing: "0.02em", boxSizing: "border-box",
-                boxShadow: "0 2px 8px rgba(42,74,71,.25)", transition: "opacity .15s",
+                boxShadow: "0 2px 8px rgba(42,74,71,.25)", cursor: "pointer", transition: "opacity .15s",
               }}
               onMouseEnter={(e) => e.currentTarget.style.opacity = "0.85"}
               onMouseLeave={(e) => e.currentTarget.style.opacity = "1"}
@@ -605,8 +603,8 @@ export default function QuoteView() {
                 <line x1="16" y1="17" x2="8" y2="17" />
                 <polyline points="10 9 9 9 8 9" />
               </svg>
-              Ver Especificaciones Técnicas (PDF)
-            </a>
+              Ver Especificaciones Técnicas
+            </button>
             <div style={{ display: "flex", gap: 10, width: "100%" }}>
               <button
                 onClick={() => { setSection("plano"); window.scrollTo({ top: document.querySelector(".quote-doc")?.offsetTop - 20, behavior: "smooth" }); }}
@@ -645,6 +643,63 @@ export default function QuoteView() {
         </div>
       </div>
       </motion.div>
+      )}
+
+      {/* ═══════════ EETT ═══════════ */}
+      {section === "eett" && (
+        <motion.div
+          key="eett"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 20 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          style={{ background: P.card, borderRadius: 12, padding: "24px", boxShadow: P.shadowMd, border: `1px solid ${P.border}` }}
+        >
+          <div style={{ fontSize: 11, letterSpacing: "0.14em", color: B.darkGreen, fontWeight: 800, marginBottom: 16, textTransform: "uppercase", textAlign: "center" }}>
+            Especificaciones Técnicas — Módulos 2026
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {[1,2,3,4,5,6,7,8].map((n) => (
+              <img
+                key={n}
+                src={`/docs/eett/page-${n}.jpg`}
+                alt={`Especificaciones Técnicas — Lámina ${n}`}
+                loading="lazy"
+                style={{ width: "100%", height: "auto", borderRadius: 6, display: "block", border: `1px solid ${B.border}` }}
+              />
+            ))}
+          </div>
+          <div className="no-print" style={{ display: "flex", gap: 8, marginTop: 16 }}>
+            <a
+              href="/docs/eett-modulos-2026.pdf"
+              download
+              style={{
+                flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                background: "transparent", color: B.darkGreen, border: `2px solid ${B.darkGreen}`,
+                padding: "12px 16px", borderRadius: 8, fontSize: 13, fontWeight: 700,
+                fontFamily: font, textDecoration: "none",
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Descargar PDF
+            </a>
+            <button
+              onClick={() => setSection("presupuesto")}
+              style={{
+                flex: 1, display: "flex", alignItems: "center", gap: 8, justifyContent: "center",
+                background: B.darkGreen, color: "#fff", border: "none",
+                padding: "12px 16px", borderRadius: 8, fontSize: 13, fontWeight: 700,
+                fontFamily: font, cursor: "pointer",
+              }}
+            >
+              ← Volver al Presupuesto
+            </button>
+          </div>
+        </motion.div>
       )}
 
       {/* ═══════════ PLANO ═══════════ */}
