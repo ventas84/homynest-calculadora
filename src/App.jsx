@@ -3,11 +3,13 @@ import { P, font, fontHeading } from "./data/constants";
 import CalculatorPage from "./pages/Calculator";
 import QuotesList from "./pages/QuotesList";
 import QuoteView from "./pages/QuoteView";
+import PDFViewer from "./pages/PDFViewer";
 
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const isQuoteView = location.pathname.startsWith("/cotizacion/");
+  const isFullWidth = isQuoteView || location.pathname === "/docs/eett";
 
   return (
     <div
@@ -16,14 +18,14 @@ export default function App() {
         background: P.bg,
         color: P.text,
         fontFamily: font,
-        padding: isQuoteView ? 0 : "20px 16px 40px",
-        maxWidth: isQuoteView ? "none" : 520,
+        padding: isFullWidth ? 0 : "20px 16px 40px",
+        maxWidth: isFullWidth ? "none" : 520,
         margin: "0 auto",
-        overflow: isQuoteView ? "visible" : undefined,
+        overflow: isFullWidth ? "visible" : undefined,
         boxSizing: "border-box",
       }}
     >
-      {!isQuoteView && (
+      {!isFullWidth && (
         <div style={{ marginBottom: 24 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
             <div>
@@ -60,9 +62,10 @@ export default function App() {
         <Route path="/" element={<CalculatorPage />} />
         <Route path="/cotizaciones" element={<QuotesList />} />
         <Route path="/cotizacion/:id" element={<QuoteView />} />
+        <Route path="/docs/eett" element={<PDFViewer />} />
       </Routes>
 
-      {!isQuoteView && (
+      {!isFullWidth && (
         <div style={{ textAlign: "center", marginTop: 20, fontSize: 10, color: P.textDim, fontFamily: font }}>
           Datos enlazados a "Valor transporte por comuna" · Modelos 2026
         </div>

@@ -611,15 +611,13 @@ export default function QuoteView() {
 
           {/* EETT link */}
           <div className="reveal" style={{ textAlign: "center", marginTop: 32, marginBottom: 8 }}>
-            <a
-              href="/docs/eett-modulos-2026.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => navigate("/docs/eett")}
               style={{
                 display: "inline-flex", alignItems: "center", gap: 10,
-                background: B.darkGreen, color: "#fff", textDecoration: "none",
+                background: B.darkGreen, color: "#fff", border: "none",
                 padding: "14px 28px", borderRadius: 8, fontSize: 14, fontWeight: 700,
-                fontFamily: font, letterSpacing: "0.02em",
+                fontFamily: font, letterSpacing: "0.02em", cursor: "pointer",
                 boxShadow: "0 2px 8px rgba(42,74,71,.25)",
                 transition: "opacity .15s",
               }}
@@ -634,7 +632,7 @@ export default function QuoteView() {
                 <polyline points="10 9 9 9 8 9" />
               </svg>
               Ver Especificaciones Técnicas (PDF)
-            </a>
+            </button>
           </div>
         </div>
       </div>
