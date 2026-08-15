@@ -372,6 +372,19 @@ export default function QuoteView() {
         .reveal-in { opacity:1; transform:translateY(0); }
         .edit-hover:hover { background: rgba(255,255,255,0.08) !important; }
         @media print { .no-print { display:none !important; } body, html { background:white !important; } .quote-doc { background:white !important; box-shadow:none !important; } .reveal { opacity:1 !important; transform:none !important; } }
+        @media (max-width: 640px) {
+          .quote-outer { padding: 10px 6px 32px !important; }
+          .quote-doc .green-header-inner { padding: 24px 16px 20px !important; }
+          .quote-doc .body-inner { padding: 28px 16px !important; }
+          .quote-doc .brand-name { font-size: 22px !important; }
+          .quote-doc .brand-web { font-size: 16px !important; }
+          .quote-doc .project-title { font-size: 15px !important; }
+          .quote-doc .price-big { font-size: 20px !important; white-space: normal !important; }
+          .quote-doc .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          .quote-doc .table-wrap table { min-width: 480px; }
+          .tabs-row { gap: 4px !important; }
+          .tabs-row button { padding: 10px 8px !important; font-size: 12px !important; }
+        }
       `}</style>
 
       <CinematicScroll quote={quote} />
@@ -381,44 +394,27 @@ export default function QuoteView() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        className="quote-outer"
         style={{ maxWidth: 820, margin: "0 auto", padding: "20px 16px 40px" }}
       >
 
       <div className="no-print" style={{ marginBottom: 16 }}>
-        <div style={{ display: "flex", gap: 8, marginBottom: 10, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 10, alignItems: "center", flexWrap: "wrap" }}>
           <button onClick={() => navigate("/")} style={{ background: P.card, border: `1px solid ${P.border}`, color: P.text, padding: "8px 12px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontFamily: font }}>Calculadora</button>
           <button onClick={() => navigate("/cotizaciones")} style={{ background: P.card, border: `1px solid ${P.border}`, color: P.text, padding: "8px 12px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontFamily: font }}>Mis cotizaciones</button>
           <div style={{ flex: 1 }} />
           <button onClick={() => window.print()} style={{ background: P.cardAlt, border: `1px solid ${P.border}`, color: P.text, padding: "8px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontFamily: font, fontWeight: 600 }}>Imprimir</button>
         </div>
 
-        <div style={{ background: P.card, padding: "10px 14px", borderRadius: 8, border: `1px solid ${P.border}`, marginBottom: 8, fontSize: 13, fontFamily: font }}>
+        <div style={{ background: P.card, padding: "10px 14px", borderRadius: 8, border: `1px solid ${P.border}`, fontSize: 13, fontFamily: font }}>
           <span style={{ color: P.textMuted }}>Cliente:</span> <strong>{quote.client.name}</strong>
           {quote.client.phone && <span style={{ color: P.textMuted, marginLeft: 12 }}>{quote.client.phone}</span>}
           <span style={{ color: P.textDim, marginLeft: 12, fontSize: 11 }}>N° {quote.id}</span>
         </div>
-
-        <button onClick={downloadHTML} style={{ width: "100%", background: P.accent, border: "none", color: "#FFFFFF", padding: "14px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: fontHeading, fontWeight: 700, marginBottom: 8, letterSpacing: "-0.01em", boxShadow: "0 4px 16px rgba(166,124,82,.3)", transition: "all .15s ease" }}>
-          Descargar pagina HTML (para enviar al cliente)
-        </button>
-
-        <button onClick={shareWA} style={{ width: "100%", background: "#25D366", border: "none", color: "#fff", padding: "12px 16px", borderRadius: 8, cursor: "pointer", fontSize: 14, fontFamily: font, fontWeight: 700, marginBottom: 10 }}>
-          Enviar por WhatsApp{quote.client.phone ? ` — ${quote.client.phone}` : ""}
-        </button>
-
-        <div style={{ background: P.card, padding: "10px 12px", borderRadius: 8, border: `1px solid ${P.border}` }}>
-          <div style={{ fontSize: 10, color: P.textDim, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6, fontFamily: font }}>URL de esta cotización</div>
-          <div style={{ display: "flex", gap: 6 }}>
-            <input readOnly value={shareUrl} onFocus={(e) => e.target.select()} onClick={(e) => e.target.select()} style={{ flex: 1, background: P.inputBg, border: `1px solid ${P.border}`, borderRadius: 6, padding: "8px 10px", color: P.text, fontSize: 12, fontFamily: font, outline: "none", minWidth: 0, boxSizing: "border-box" }} />
-            <button onClick={copyLink} style={{ background: copied ? P.accent : P.cardAlt, color: copied ? "#FFFFFF" : P.primaryDark, border: `1px solid ${copied ? P.accent : P.border}`, padding: "8px 14px", borderRadius: 6, cursor: "pointer", fontSize: 12, fontFamily: font, fontWeight: 700, whiteSpace: "nowrap", transition: "all .15s" }}>
-              {copied ? "Copiado" : "Copiar"}
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* ═══════════ SECTION TABS ═══════════ */}
-      <div className="no-print" style={{ display: "flex", gap: 6, marginBottom: 20 }}>
+      <div className="no-print tabs-row" style={{ display: "flex", gap: 6, marginBottom: 20 }}>
         {[
           { key: "presupuesto", label: "Presupuesto" },
           { key: "plano", label: "Ver Plano", accent: true },
@@ -461,13 +457,13 @@ export default function QuoteView() {
       <div className="quote-doc" style={{ background: "#fff", overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,.1)", fontFamily: font, color: "#1A1A1A" }}>
 
         {/* Green header */}
-        <div style={{ background: B.darkGreen, padding: "32px 40px 26px", color: "#fff", animation: "fadeUp .6s cubic-bezier(.16,1,.3,1) both" }}>
+        <div className="green-header-inner" style={{ background: B.darkGreen, padding: "32px 40px 26px", color: "#fff", animation: "fadeUp .6s cubic-bezier(.16,1,.3,1) both" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <HomyNestLogo color="#fff" size={48} />
-              <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.02em" }}>HomyNest</div>
+              <div className="brand-name" style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.02em" }}>HomyNest</div>
             </div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>www.homynest.cl</div>
+            <div className="brand-web" style={{ fontSize: 22, fontWeight: 700 }}>www.homynest.cl</div>
           </div>
           <div style={{ height: 1, background: "rgba(255,255,255,0.2)", margin: "0 0 16px" }} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20 }}>
@@ -484,13 +480,13 @@ export default function QuoteView() {
         </div>
 
         {/* Body — identical to PDF */}
-        <div style={{ padding: "48px 44px" }}>
+        <div className="body-inner" style={{ padding: "48px 44px" }}>
 
           {/* PROYECTO */}
           <div className="reveal" style={{ marginBottom: 0 }}>
             <div style={{ marginBottom: 14 }}>
               <span style={{ fontSize: 12, letterSpacing: "0.1em", fontWeight: 800 }}>PROYECTO: &nbsp;&nbsp;</span>
-              <span style={{ fontSize: 21, fontWeight: 900, letterSpacing: "-0.01em" }}>{info.title}</span>
+              <span className="project-title" style={{ fontSize: 21, fontWeight: 900, letterSpacing: "-0.01em" }}>{info.title}</span>
             </div>
             <div style={{ fontSize: 14, color: "#444", lineHeight: 1.9 }}>
               <div><strong>Cliente:</strong> {quote.client.name}</div>
@@ -505,7 +501,7 @@ export default function QuoteView() {
           <div style={{ height: 1, background: "#1A1A1A", margin: "20px 0 24px" }} />
 
           {/* Table */}
-          <div className="reveal">
+          <div className="reveal table-wrap">
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid #1A1A1A" }}>
@@ -530,7 +526,7 @@ export default function QuoteView() {
           {/* Green gradient line + PRECIO OFERTA */}
           <div className="reveal" style={{ textAlign: "center", margin: "40px 0" }}>
             <div style={{ height: 3, background: `linear-gradient(90deg, ${B.darkGreen} 0%, ${B.green} 50%, ${B.darkGreen} 100%)`, marginBottom: 36 }} />
-            <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
+            <div className="price-big" style={{ fontSize: 28, fontWeight: 900, letterSpacing: "0.02em", whiteSpace: "nowrap" }}>
               PRECIO OFERTA :&nbsp;&nbsp; {fmt(t.precio)} <span style={{ fontSize: 15, fontWeight: 700, verticalAlign: "baseline" }}>NETO</span>
             </div>
           </div>
@@ -678,6 +674,28 @@ export default function QuoteView() {
       )}
 
       </AnimatePresence>
+
+      {/* ═══════════ ACCIONES (al final) ═══════════ */}
+      <div className="no-print" style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 8 }}>
+        <button onClick={downloadHTML} style={{ width: "100%", background: P.accent, border: "none", color: "#FFFFFF", padding: "14px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: fontHeading, fontWeight: 700, letterSpacing: "-0.01em", boxShadow: "0 4px 16px rgba(166,124,82,.3)", transition: "all .15s ease" }}>
+          Descargar pagina HTML (para enviar al cliente)
+        </button>
+
+        <button onClick={shareWA} style={{ width: "100%", background: "#25D366", border: "none", color: "#fff", padding: "12px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: font, fontWeight: 700 }}>
+          Enviar por WhatsApp{quote.client.phone ? ` — ${quote.client.phone}` : ""}
+        </button>
+
+        <div style={{ background: P.card, padding: "10px 12px", borderRadius: 8, border: `1px solid ${P.border}` }}>
+          <div style={{ fontSize: 10, color: P.textDim, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6, fontFamily: font }}>URL de esta cotización</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            <input readOnly value={shareUrl} onFocus={(e) => e.target.select()} onClick={(e) => e.target.select()} style={{ flex: 1, background: P.inputBg, border: `1px solid ${P.border}`, borderRadius: 6, padding: "8px 10px", color: P.text, fontSize: 12, fontFamily: font, outline: "none", minWidth: 0, boxSizing: "border-box" }} />
+            <button onClick={copyLink} style={{ background: copied ? P.accent : P.cardAlt, color: copied ? "#FFFFFF" : P.primaryDark, border: `1px solid ${copied ? P.accent : P.border}`, padding: "8px 14px", borderRadius: 6, cursor: "pointer", fontSize: 12, fontFamily: font, fontWeight: 700, whiteSpace: "nowrap", transition: "all .15s" }}>
+              {copied ? "Copiado" : "Copiar"}
+            </button>
+          </div>
+        </div>
+      </div>
+
       </motion.div>
     </>
   );
