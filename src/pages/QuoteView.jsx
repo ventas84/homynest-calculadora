@@ -609,17 +609,18 @@ export default function QuoteView() {
             </div>
           )}
 
-          {/* EETT link */}
-          <div className="reveal" style={{ textAlign: "center", marginTop: 32, marginBottom: 8 }}>
-            <button
-              onClick={() => navigate("/docs/eett")}
+          {/* Links: EETT, Plano, Galería */}
+          <div className="reveal" style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 32, marginBottom: 8, alignItems: "center" }}>
+            <a
+              href="/docs/eett-modulos-2026.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
-                display: "inline-flex", alignItems: "center", gap: 10,
-                background: B.darkGreen, color: "#fff", border: "none",
+                display: "inline-flex", alignItems: "center", gap: 10, width: "100%", justifyContent: "center",
+                background: B.darkGreen, color: "#fff", textDecoration: "none",
                 padding: "14px 28px", borderRadius: 8, fontSize: 14, fontWeight: 700,
-                fontFamily: font, letterSpacing: "0.02em", cursor: "pointer",
-                boxShadow: "0 2px 8px rgba(42,74,71,.25)",
-                transition: "opacity .15s",
+                fontFamily: font, letterSpacing: "0.02em", boxSizing: "border-box",
+                boxShadow: "0 2px 8px rgba(42,74,71,.25)", transition: "opacity .15s",
               }}
               onMouseEnter={(e) => e.currentTarget.style.opacity = "0.85"}
               onMouseLeave={(e) => e.currentTarget.style.opacity = "1"}
@@ -632,7 +633,41 @@ export default function QuoteView() {
                 <polyline points="10 9 9 9 8 9" />
               </svg>
               Ver Especificaciones Técnicas (PDF)
-            </button>
+            </a>
+            <div style={{ display: "flex", gap: 10, width: "100%" }}>
+              <button
+                onClick={() => { setSection("plano"); window.scrollTo({ top: document.querySelector(".tabs-row")?.offsetTop - 20, behavior: "smooth" }); }}
+                style={{
+                  flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  background: "transparent", color: B.darkGreen, border: `2px solid ${B.darkGreen}`,
+                  padding: "12px 16px", borderRadius: 8, fontSize: 13, fontWeight: 700,
+                  fontFamily: font, cursor: "pointer", transition: "all .15s",
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <line x1="3" y1="9" x2="21" y2="9" />
+                  <line x1="9" y1="21" x2="9" y2="9" />
+                </svg>
+                Ver Plano
+              </button>
+              <button
+                onClick={() => { setSection("galeria"); window.scrollTo({ top: document.querySelector(".tabs-row")?.offsetTop - 20, behavior: "smooth" }); }}
+                style={{
+                  flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  background: "transparent", color: B.darkGreen, border: `2px solid ${B.darkGreen}`,
+                  padding: "12px 16px", borderRadius: 8, fontSize: 13, fontWeight: 700,
+                  fontFamily: font, cursor: "pointer", transition: "all .15s",
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+                Ver Galería
+              </button>
+            </div>
           </div>
         </div>
       </div>

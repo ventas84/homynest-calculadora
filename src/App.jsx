@@ -3,13 +3,12 @@ import { P, font, fontHeading } from "./data/constants";
 import CalculatorPage from "./pages/Calculator";
 import QuotesList from "./pages/QuotesList";
 import QuoteView from "./pages/QuoteView";
-import PDFViewer from "./pages/PDFViewer";
 
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const isQuoteView = location.pathname.startsWith("/cotizacion/");
-  const isFullWidth = isQuoteView || location.pathname === "/docs/eett";
+  const isFullWidth = isQuoteView;
 
   return (
     <div
@@ -62,7 +61,6 @@ export default function App() {
         <Route path="/" element={<CalculatorPage />} />
         <Route path="/cotizaciones" element={<QuotesList />} />
         <Route path="/cotizacion/:id" element={<QuoteView />} />
-        <Route path="/docs/eett" element={<PDFViewer />} />
       </Routes>
 
       {!isFullWidth && (
