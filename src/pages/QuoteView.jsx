@@ -379,14 +379,22 @@ export default function QuoteView() {
         @media print { .no-print { display:none !important; } body, html { background:white !important; } .quote-doc { background:white !important; box-shadow:none !important; } .reveal { opacity:1 !important; transform:none !important; } }
         @media (max-width: 640px) {
           .quote-outer { padding: 10px 6px 32px !important; }
-          .quote-doc .green-header-inner { padding: 24px 16px 20px !important; }
-          .quote-doc .body-inner { padding: 28px 16px !important; }
+          .quote-doc .green-header-inner { padding: 20px 16px 18px !important; }
+          .quote-doc .brand-row { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; margin-bottom: 12px !important; }
           .quote-doc .brand-name { font-size: 22px !important; }
-          .quote-doc .brand-web { font-size: 16px !important; }
-          .quote-doc .project-title { font-size: 15px !important; }
-          .quote-doc .price-big { font-size: 20px !important; white-space: normal !important; }
-          .quote-doc .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-          .quote-doc .table-wrap table { min-width: 480px; }
+          .quote-doc .brand-web { font-size: 14px !important; opacity: 0.8; }
+          .quote-doc .header-cols { flex-direction: column !important; gap: 10px !important; }
+          .quote-doc .header-meta { text-align: left !important; }
+          .quote-doc .body-inner { padding: 24px 16px !important; }
+          .quote-doc .project-row { flex-direction: column !important; }
+          .quote-doc .project-title { font-size: 15px !important; display: block !important; margin-top: 4px !important; }
+          .quote-doc .project-details { font-size: 13px !important; }
+          .quote-doc .project-details .patente { padding-left: 0 !important; }
+          .quote-doc .table-wrap table { width: 100% !important; min-width: 0 !important; }
+          .quote-doc .table-wrap th, .quote-doc .table-wrap td { padding: 8px 4px !important; font-size: 12px !important; }
+          .quote-doc .table-wrap .th-qty, .quote-doc .table-wrap .td-qty { width: 50px !important; }
+          .quote-doc .table-wrap .th-price, .quote-doc .table-wrap .td-price { width: auto !important; }
+          .quote-doc .price-big { font-size: 18px !important; white-space: normal !important; }
         }
       `}</style>
 
@@ -431,7 +439,7 @@ export default function QuoteView() {
 
         {/* Green header */}
         <div className="green-header-inner" style={{ background: B.darkGreen, padding: "32px 40px 26px", color: "#fff", animation: "fadeUp .6s cubic-bezier(.16,1,.3,1) both" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+          <div className="brand-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <HomyNestLogo color="#fff" size={48} />
               <div className="brand-name" style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.02em" }}>HomyNest</div>
@@ -439,13 +447,13 @@ export default function QuoteView() {
             <div className="brand-web" style={{ fontSize: 22, fontWeight: 700 }}>www.homynest.cl</div>
           </div>
           <div style={{ height: 1, background: "rgba(255,255,255,0.2)", margin: "0 0 16px" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20 }}>
+          <div className="header-cols" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20 }}>
             <div style={{ flex: "1 1 auto", fontSize: 13, lineHeight: 1.7 }}>
               <div>Valor establecido <strong>"llave en mano"</strong></div>
               <div>de <strong>{C.modUf} UF</strong> por metro cuadrado.</div>
               <div>UF al día: {fmt(liveUf)}</div>
             </div>
-            <div style={{ flexShrink: 0, textAlign: "right", fontSize: 13, lineHeight: 1.8 }}>
+            <div className="header-meta" style={{ flexShrink: 0, textAlign: "right", fontSize: 13, lineHeight: 1.8 }}>
               <div><strong>Fecha:</strong> {fmtDate(quote.createdAt)}</div>
               <div><strong>Validez:</strong> {quote.validez}</div>
             </div>
@@ -457,16 +465,16 @@ export default function QuoteView() {
 
           {/* PROYECTO */}
           <div className="reveal" style={{ marginBottom: 0 }}>
-            <div style={{ marginBottom: 14 }}>
+            <div className="project-row" style={{ marginBottom: 14 }}>
               <span style={{ fontSize: 12, letterSpacing: "0.1em", fontWeight: 800 }}>PROYECTO: &nbsp;&nbsp;</span>
               <span className="project-title" style={{ fontSize: 21, fontWeight: 900, letterSpacing: "-0.01em" }}>{info.title}</span>
             </div>
-            <div style={{ fontSize: 14, color: "#444", lineHeight: 1.9 }}>
+            <div className="project-details" style={{ fontSize: 14, color: "#444", lineHeight: 1.9 }}>
               <div><strong>Cliente:</strong> {quote.client.name}</div>
               {clientLocation && <div><strong>Ubicación:</strong> {clientLocation}</div>}
               <div><strong>Construcción:</strong> Homy Nest Studio</div>
               <div><strong>Arquitecto:</strong> Cristóbal Letelier G.</div>
-              <div style={{ paddingLeft: 84 }}>Patente 3-4240</div>
+              <div className="patente" style={{ paddingLeft: 84 }}>Patente 3-4240</div>
             </div>
           </div>
 
@@ -479,8 +487,8 @@ export default function QuoteView() {
               <thead>
                 <tr style={{ borderBottom: "2px solid #1A1A1A" }}>
                   <th style={{ textAlign: "left", padding: "10px 8px", fontSize: 11, letterSpacing: "0.1em", fontWeight: 800 }}>DESCRIPCIÓN</th>
-                  <th style={{ textAlign: "center", padding: "10px 8px", fontSize: 11, letterSpacing: "0.1em", fontWeight: 800, width: 100 }}>CANTIDAD</th>
-                  <th style={{ textAlign: "right", padding: "10px 8px", fontSize: 11, letterSpacing: "0.1em", fontWeight: 800, width: 140 }}>PRECIO NETO</th>
+                  <th className="th-qty" style={{ textAlign: "center", padding: "10px 8px", fontSize: 11, letterSpacing: "0.1em", fontWeight: 800, width: 100 }}>CANTIDAD</th>
+                  <th className="th-price" style={{ textAlign: "right", padding: "10px 8px", fontSize: 11, letterSpacing: "0.1em", fontWeight: 800, width: 140 }}>PRECIO NETO</th>
                 </tr>
               </thead>
               <tbody>
@@ -489,8 +497,8 @@ export default function QuoteView() {
                     {descLabel} de <strong>{quote.mt2} metros cuadrados</strong> ({info.dims})<br />
                     ({info.prog})
                   </td>
-                  <td style={{ padding: "16px 8px", textAlign: "center", fontSize: 14 }}>1</td>
-                  <td style={{ padding: "16px 8px", textAlign: "right", fontSize: 14, whiteSpace: "nowrap" }}>{fmt(info.precioTabla)}</td>
+                  <td className="td-qty" style={{ padding: "16px 8px", textAlign: "center", fontSize: 14 }}>1</td>
+                  <td className="td-price" style={{ padding: "16px 8px", textAlign: "right", fontSize: 14, whiteSpace: "nowrap" }}>{fmt(info.precioTabla)}</td>
                 </tr>
               </tbody>
             </table>
