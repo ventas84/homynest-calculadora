@@ -383,13 +383,12 @@ export default function QuoteView() {
           .quote-doc .brand-row { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; margin-bottom: 12px !important; }
           .quote-doc .brand-name { font-size: 22px !important; }
           .quote-doc .brand-web { font-size: 14px !important; opacity: 0.8; }
-          .quote-doc .header-cols { flex-direction: column !important; gap: 10px !important; }
-          .quote-doc .header-meta { text-align: left !important; }
+          .quote-doc .header-cols { flex-direction: column !important; gap: 6px !important; font-size: 11px !important; }
+          .quote-doc .header-meta { text-align: left !important; font-size: 11px !important; }
           .quote-doc .body-inner { padding: 24px 16px !important; }
           .quote-doc .project-row { flex-direction: column !important; }
           .quote-doc .project-title { font-size: 15px !important; display: block !important; margin-top: 4px !important; }
           .quote-doc .project-details { font-size: 13px !important; }
-          .quote-doc .project-details .patente { padding-left: 0 !important; }
           .quote-doc .table-wrap table { width: 100% !important; min-width: 0 !important; }
           .quote-doc .table-wrap th, .quote-doc .table-wrap td { padding: 8px 4px !important; font-size: 12px !important; }
           .quote-doc .table-wrap .th-qty, .quote-doc .table-wrap .td-qty { width: 50px !important; }
@@ -473,8 +472,7 @@ export default function QuoteView() {
               <div><strong>Cliente:</strong> {quote.client.name}</div>
               {clientLocation && <div><strong>Ubicación:</strong> {clientLocation}</div>}
               <div><strong>Construcción:</strong> Homy Nest Studio</div>
-              <div><strong>Arquitecto:</strong> Cristóbal Letelier G.</div>
-              <div className="patente" style={{ paddingLeft: 84 }}>Patente 3-4240</div>
+              <div><strong>Arquitecto:</strong> Cristóbal Letelier G. — Patente 3-4240</div>
             </div>
           </div>
 
