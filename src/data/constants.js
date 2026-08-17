@@ -92,7 +92,6 @@ export const EXTRAS = [
   { id: "duchaExt", label: "Ducha exterior", unit: "un", defaultQty: 1, defaultPrice: 450000, priceLabel: "c/u" },
   { id: "sauna", label: "Sauna", unit: "un", defaultQty: 1, defaultPrice: 3500000, priceLabel: "c/u" },
   { id: "quincho", label: "Quincho", unit: "m²", defaultQty: 20, defaultPrice: 180000, priceLabel: "por m²" },
-  { id: "deck", label: "Deck de madera", unit: "m²", defaultQty: 15, defaultPrice: 85000, priceLabel: "por m²" },
   { id: "cierro", label: "Cierro perimetral", unit: "ml", defaultQty: 50, defaultPrice: 35000, priceLabel: "por ml" },
   { id: "fosa", label: "Provisión e instalación de fosa", unit: "un", defaultQty: 1, defaultPrice: 1500000, priceLabel: "c/u" },
 ];

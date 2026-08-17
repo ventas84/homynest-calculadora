@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   C, PRESETS, EXTRAS, DEFAULT_TERMS, DEFAULT_TERMS_CASA,
@@ -9,6 +9,7 @@ import {
   Divider, Tabs, PresetChips, ComunaSearch, SaveQuoteModal,
 } from "../components/ui";
 import { storage } from "../lib/storage";
+import { useUf } from "../lib/uf";
 
 function CalcModulos() {
   const navigate = useNavigate();
@@ -356,6 +357,7 @@ function CalcTerrazas() {
 
 function CalcCasa() {
   const navigate = useNavigate();
+  const { uf: liveUf } = useUf();
   const [mt2, setMt2] = useState(70);
   const [ufVenta, setUfVenta] = useState(17);
   const [ufCosto, setUfCosto] = useState(13);
@@ -370,6 +372,8 @@ function CalcCasa() {
   );
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => { setValorUf(liveUf); }, [liveUf]);
 
   const toggleExtra = (id) => setExtras((prev) => ({ ...prev, [id]: { ...prev[id], on: !prev[id].on } }));
   const setExtraQty = (id, qty) => setExtras((prev) => ({ ...prev, [id]: { ...prev[id], qty } }));
@@ -423,7 +427,7 @@ function CalcCasa() {
           <div style={{ flex: 1 }}><NumInput label="Largo (mt)" value={largo} onChange={setLargo} min={5} max={40} step={0.5} /></div>
         </div>
         <NumInput label="Superficie total" value={mt2} onChange={setMt2} suffix="m²" min={30} max={500} />
-        <MoneyInput label="Valor UF del día" value={valorUf} onChange={setValorUf} note="Actualizar según UF vigente" />
+        <MoneyInput label="Valor UF del día" value={valorUf} onChange={setValorUf} note="Se actualiza automáticamente" />
       </Section>
 
       <Section title="Programa">
