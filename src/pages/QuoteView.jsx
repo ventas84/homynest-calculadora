@@ -281,7 +281,12 @@ export default function QuoteView() {
   const [tempValidez, setTempValidez] = useState("");
 
   useEffect(() => {
-    const q = storage.get(id);
+    let q = storage.get(id);
+    if (!q && window.location.hash.length > 1) {
+      try {
+        q = JSON.parse(decodeURIComponent(escape(atob(window.location.hash.slice(1)))));
+      } catch {}
+    }
     if (q) {
       if (!q.terms) q.terms = [...DEFAULT_TERMS];
       if (!q.headerText) q.headerText = DEFAULT_HEADER_TEXT;
@@ -334,7 +339,9 @@ export default function QuoteView() {
     </div>
   );
 
-  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/cotizacion/${quote.id}` : "";
+  const shareUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/cotizacion/${quote.id}#${btoa(unescape(encodeURIComponent(JSON.stringify(quote))))}`
+    : "";
 
   const copyLink = async () => {
     try { await navigator.clipboard.writeText(shareUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); }
