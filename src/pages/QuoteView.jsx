@@ -284,8 +284,8 @@ export default function QuoteView() {
 
   useEffect(() => {
     let q = storage.get(id);
-    let shared = false;
-    if (!q && window.location.hash.length > 1) {
+    const hasHash = window.location.hash.length > 1;
+    if (!q && hasHash) {
       try {
         const raw = window.location.hash.slice(1);
         const decompressed = LZString.decompressFromEncodedURIComponent(raw);
@@ -296,9 +296,8 @@ export default function QuoteView() {
           q = JSON.parse(decodeURIComponent(escape(atob(window.location.hash.slice(1)))));
         } catch {}
       }
-      if (q) shared = true;
     }
-    setIsShared(shared);
+    setIsShared(hasHash);
     if (q) {
       if (!q.terms) q.terms = [...DEFAULT_TERMS];
       if (!q.headerText) q.headerText = DEFAULT_HEADER_TEXT;
