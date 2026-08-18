@@ -385,22 +385,40 @@ export default function QuoteView() {
         .edit-hover:hover { background: rgba(255,255,255,0.08) !important; }
         @media print { .no-print { display:none !important; } body, html { background:white !important; } .quote-doc { background:white !important; box-shadow:none !important; } .reveal { opacity:1 !important; transform:none !important; } }
         @media (max-width: 640px) {
-          .quote-outer { padding: 10px 6px 32px !important; }
-          .quote-doc .green-header-inner { padding: 20px 16px 18px !important; }
-          .quote-doc .brand-row { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; margin-bottom: 12px !important; }
-          .quote-doc .brand-name { font-size: 22px !important; }
-          .quote-doc .brand-web { font-size: 14px !important; opacity: 0.8; }
-          .quote-doc .header-cols { flex-direction: column !important; gap: 6px !important; font-size: 11px !important; }
-          .quote-doc .header-meta { text-align: left !important; font-size: 11px !important; }
-          .quote-doc .body-inner { padding: 24px 16px !important; }
+          .quote-outer { padding: 8px 4px 28px !important; }
+          .quote-doc .green-header-inner { padding: 18px 14px 16px !important; }
+          .quote-doc .brand-row { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; margin-bottom: 10px !important; }
+          .quote-doc .brand-name { font-size: 20px !important; }
+          .quote-doc .brand-web { font-size: 13px !important; opacity: 0.8; }
+          .quote-doc .header-cols { flex-direction: column !important; gap: 4px !important; font-size: 10px !important; line-height: 1.5 !important; }
+          .quote-doc .header-meta { text-align: left !important; font-size: 10px !important; }
+          .quote-doc .body-inner { padding: 20px 14px !important; }
           .quote-doc .project-row { flex-direction: column !important; }
-          .quote-doc .project-title { font-size: 15px !important; display: block !important; margin-top: 4px !important; }
-          .quote-doc .project-details { font-size: 13px !important; }
+          .quote-doc .project-title { font-size: 14px !important; display: block !important; margin-top: 4px !important; }
+          .quote-doc .project-details { font-size: 12px !important; line-height: 1.7 !important; }
           .quote-doc .table-wrap table { width: 100% !important; min-width: 0 !important; }
-          .quote-doc .table-wrap th, .quote-doc .table-wrap td { padding: 8px 4px !important; font-size: 12px !important; }
-          .quote-doc .table-wrap .th-qty, .quote-doc .table-wrap .td-qty { width: 50px !important; }
+          .quote-doc .table-wrap th, .quote-doc .table-wrap td { padding: 6px 3px !important; font-size: 11px !important; }
+          .quote-doc .table-wrap .th-qty, .quote-doc .table-wrap .td-qty { width: 44px !important; }
           .quote-doc .table-wrap .th-price, .quote-doc .table-wrap .td-price { width: auto !important; }
-          .quote-doc .price-big { font-size: 18px !important; white-space: normal !important; }
+          .quote-doc .price-big { font-size: 16px !important; white-space: normal !important; }
+          .quote-doc .terms-list li { font-size: 11px !important; line-height: 1.5 !important; margin-bottom: 4px !important; }
+          .quote-doc .terms-title { font-size: 12px !important; }
+          .quote-doc .extras-box { padding: 12px 14px !important; font-size: 11px !important; }
+          .quote-doc .extras-box .section-label { font-size: 10px !important; }
+          .quote-doc .logistics-box { padding: 12px 14px !important; font-size: 11px !important; }
+          .quote-doc .nav-buttons button, .quote-doc .nav-buttons a { font-size: 12px !important; padding: 10px 14px !important; }
+          .plano-wrap {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 35% 0;
+            overflow: visible;
+          }
+          .plano-wrap .plano-img {
+            transform: rotate(90deg) !important;
+            width: 140% !important;
+            max-width: none !important;
+          }
         }
       `}</style>
 
@@ -523,7 +541,7 @@ export default function QuoteView() {
           {/* Terms */}
           <div className="reveal" style={{ marginBottom: 24 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 800, letterSpacing: "0.04em", textDecoration: "underline" }}>TÉRMINOS Y CONDICIONES</div>
+              <div className="terms-title" style={{ fontSize: 14, fontWeight: 800, letterSpacing: "0.04em", textDecoration: "underline" }}>TÉRMINOS Y CONDICIONES</div>
               {!editingTerms && (
                 <button onClick={() => setEditingTerms(true)} className="no-print" style={{ background: "transparent", border: `1px solid ${B.border}`, color: B.gray, padding: "4px 12px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontFamily: font, fontWeight: 600 }}>Editar</button>
               )}
@@ -545,7 +563,7 @@ export default function QuoteView() {
                 </div>
               </div>
             ) : (
-              <ul style={{ margin: 0, paddingLeft: 22, listStyleType: "disc" }}>
+              <ul className="terms-list" style={{ margin: 0, paddingLeft: 22, listStyleType: "disc" }}>
                 {quote.terms.map((term, i) => <li key={i} style={{ fontSize: 13, lineHeight: 1.7, marginBottom: 6 }}>{term}</li>)}
               </ul>
             )}
@@ -553,8 +571,8 @@ export default function QuoteView() {
 
           {/* Extras (if any) */}
           {quote.extras && Object.keys(quote.extras).length > 0 && (
-            <div className="reveal" style={{ marginBottom: 32, padding: "16px 18px", border: "1.5px dashed #FBBF24", borderRadius: 10, background: B.cream }}>
-              <div style={{ fontSize: 11, letterSpacing: "0.14em", color: B.darkGreen, fontWeight: 800, marginBottom: 12, textTransform: "uppercase" }}>Terraza y otros (cotización aparte)</div>
+            <div className="reveal extras-box" style={{ marginBottom: 32, padding: "16px 18px", border: "1.5px dashed #FBBF24", borderRadius: 10, background: B.cream }}>
+              <div className="section-label" style={{ fontSize: 11, letterSpacing: "0.14em", color: B.darkGreen, fontWeight: 800, marginBottom: 12, textTransform: "uppercase" }}>Terraza y otros (cotización aparte)</div>
               {Object.entries(quote.extras).map(([eid, v]) => {
                 const def = EXTRAS.find((e) => e.id === eid);
                 return def ? (
@@ -574,8 +592,8 @@ export default function QuoteView() {
 
           {/* Logistics (if any) */}
           {quote.comuna && (
-            <div className="reveal" style={{ marginBottom: 32, padding: "16px 18px", border: `1.5px dashed ${B.darkGreen}`, borderRadius: 10, background: B.cream }}>
-              <div style={{ fontSize: 11, letterSpacing: "0.14em", color: B.darkGreen, fontWeight: 800, marginBottom: 10, textTransform: "uppercase" }}>Logística — {quote.comuna.nombre}, {quote.comuna.region}</div>
+            <div className="reveal logistics-box" style={{ marginBottom: 32, padding: "16px 18px", border: `1.5px dashed ${B.darkGreen}`, borderRadius: 10, background: B.cream }}>
+              <div className="section-label" style={{ fontSize: 11, letterSpacing: "0.14em", color: B.darkGreen, fontWeight: 800, marginBottom: 10, textTransform: "uppercase" }}>Logística — {quote.comuna.nombre}, {quote.comuna.region}</div>
               <div style={{ fontSize: 13, lineHeight: 1.7 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Distancia</span><span>{fmtNum(quote.comuna.km)} km</span></div>
                 <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Transporte</span><span>{fmt(quote.comuna.transporte)}</span></div>
@@ -725,11 +743,14 @@ export default function QuoteView() {
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
           style={{ background: P.card, borderRadius: 12, padding: "24px", boxShadow: P.shadowMd, border: `1px solid ${P.border}` }}
         >
-          <img
-            src="/fotos/plano.jpg"
-            alt={`Plano ${quote.modelName || quote.mt2 + " m²"}`}
-            style={{ width: "100%", height: "auto", borderRadius: 8, display: "block" }}
-          />
+          <div className="plano-wrap">
+            <img
+              className="plano-img"
+              src="/fotos/plano.jpg"
+              alt={`Plano ${quote.modelName || quote.mt2 + " m²"}`}
+              style={{ width: "100%", height: "auto", borderRadius: 8, display: "block" }}
+            />
+          </div>
           <button
             className="no-print"
             onClick={() => setSection("presupuesto")}
