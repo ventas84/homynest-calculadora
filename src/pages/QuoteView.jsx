@@ -804,15 +804,15 @@ export default function QuoteView() {
           Enviar por WhatsApp{quote.client.phone ? ` — ${quote.client.phone}` : ""}
         </button>
 
-        <div style={{ background: P.card, padding: "10px 12px", borderRadius: 8, border: `1px solid ${P.border}` }}>
-          <div style={{ fontSize: 10, color: P.textDim, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6, fontFamily: font }}>URL de esta cotización</div>
-          <div style={{ display: "flex", gap: 6 }}>
-            <input readOnly value={shareUrl} onFocus={(e) => e.target.select()} onClick={(e) => e.target.select()} style={{ flex: 1, background: P.inputBg, border: `1px solid ${P.border}`, borderRadius: 6, padding: "8px 10px", color: P.text, fontSize: 12, fontFamily: font, outline: "none", minWidth: 0, boxSizing: "border-box" }} />
-            <button onClick={copyLink} style={{ background: copied ? P.accent : P.cardAlt, color: copied ? "#FFFFFF" : P.primaryDark, border: `1px solid ${copied ? P.accent : P.border}`, padding: "8px 14px", borderRadius: 6, cursor: "pointer", fontSize: 12, fontFamily: font, fontWeight: 700, whiteSpace: "nowrap", transition: "all .15s" }}>
-              {copied ? "Copiado" : "Copiar"}
-            </button>
-          </div>
-        </div>
+        <button onClick={copyLink} style={{ width: "100%", background: copied ? P.accent : P.card, color: copied ? "#FFFFFF" : P.primaryDark, border: `1px solid ${copied ? P.accent : P.border}`, padding: "12px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: font, fontWeight: 700, transition: "all .15s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {copied
+              ? <polyline points="20 6 9 17 4 12" />
+              : <><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></>
+            }
+          </svg>
+          {copied ? "Link copiado al portapapeles" : "Copiar link para enviar al cliente"}
+        </button>
       </div>
 
       </motion.div>
