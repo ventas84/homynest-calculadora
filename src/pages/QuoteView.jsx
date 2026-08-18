@@ -843,10 +843,6 @@ export default function QuoteView() {
       {/* ═══════════ ACCIONES (al final) ═══════════ */}
       {!isShared && (
       <div className="no-print" style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 8 }}>
-        <button onClick={downloadHTML} style={{ width: "100%", background: P.accent, border: "none", color: "#FFFFFF", padding: "14px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: fontHeading, fontWeight: 700, letterSpacing: "-0.01em", boxShadow: "0 4px 16px rgba(166,124,82,.3)", transition: "all .15s ease" }}>
-          Descargar pagina HTML (para enviar al cliente)
-        </button>
-
         <button onClick={shareWA} style={{ width: "100%", background: "#25D366", border: "none", color: "#fff", padding: "12px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: font, fontWeight: 700 }}>
           Enviar por WhatsApp{quote.client.phone ? ` — ${quote.client.phone}` : ""}
         </button>
