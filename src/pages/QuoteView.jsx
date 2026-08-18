@@ -351,7 +351,7 @@ export default function QuoteView() {
   const shareWA = () => {
     const total = fmt(quote.totals.precio);
     const logLine = quote.comuna ? `\n🚚 *Logística ${quote.comuna.nombre}:* ${fmt(quote.totals.totalLog)} (aparte)` : "";
-    const msg = `*Cotización HomyNest N° ${quote.id}*\n\nHola ${quote.client.name},\n\nAdjunto tu cotización:\n\n📐 *Modelo:* ${quote.modelName}\n📏 *Superficie:* ${quote.mt2} m²\n💰 *Total:* ${total} + IVA${logLine}\n\nCualquier duda me avisas.\n\nSaludos,\n*Cristóbal Letelier*\nHomyNest`;
+    const msg = `*Cotización HomyNest N° ${quote.id}*\n\nHola ${quote.client.name},\n\nAdjunto tu cotización:\n\n📐 *Modelo:* ${quote.modelName}\n📏 *Superficie:* ${quote.mt2} m²\n💰 *Total:* ${total} + IVA${logLine}\n\n🔗 *Ver presupuesto completo:*\n${shareUrl}\n\nCualquier duda me avisas.\n\nSaludos,\n*Cristóbal Letelier*\nHomyNest`;
     const phone = quote.client.phone ? quote.client.phone.replace(/[^\d]/g, "") : "";
     window.open(phone ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   };
