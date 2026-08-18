@@ -395,29 +395,12 @@ export default function QuoteView() {
       if (resp.ok) { const data = await resp.json(); if (data.short) url = data.short; }
     } catch {}
     const total = fmt(quote.totals.precio);
-    const logLine = quote.comuna ? `\nLogistica ${quote.comuna.nombre}: ${fmt(quote.totals.totalLog)} (aparte)` : "";
-    const subject = `Cotizacion HomyNest N° ${quote.id} - ${quote.modelName}`;
-    const body = [
-      `Hola ${quote.client.name},`,
-      ``,
-      `Adjunto tu cotizacion:`,
-      ``,
-      `Modelo: ${quote.modelName}`,
-      `Superficie: ${quote.mt2} m2`,
-      `Total: ${total} + IVA${logLine}`,
-      ``,
-      `Ver presupuesto completo:`,
-      url,
-      ``,
-      `Cualquier duda me avisas.`,
-      ``,
-      `Saludos,`,
-      `Cristobal Letelier`,
-      `HomyNest`,
-      `www.homynest.cl`,
-    ].join("\r\n");
+    const subject = `Cotizacion HomyNest - ${quote.modelName}`;
+    const body = `Hola ${quote.client.name},\r\n\r\nTu cotizacion:\r\nModelo: ${quote.modelName}\r\nSuperficie: ${quote.mt2} m2\r\nTotal: ${total} + IVA\r\n\r\nVer presupuesto:\r\n${url}\r\n\r\nSaludos,\r\nCristobal Letelier - HomyNest`;
     const email = quote.client.email || "";
-    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const a = document.createElement("a");
+    a.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    a.click();
   };
 
   const downloadHTML = () => {
