@@ -1,9 +1,21 @@
+import { SHEETS_WEBHOOK } from "../data/constants";
+
 const PREFIX = "quote:";
+
+function sendToSheet(quote) {
+  if (!SHEETS_WEBHOOK) return;
+  const { terms, headerText, validez, ...data } = quote;
+  fetch(SHEETS_WEBHOOK, {
+    method: "POST",
+    body: JSON.stringify(data),
+  }).catch(() => {});
+}
 
 export const storage = {
   save(quote) {
     try {
       localStorage.setItem(PREFIX + quote.id, JSON.stringify(quote));
+      sendToSheet(quote);
       return true;
     } catch (e) {
       console.error("storage.save:", e);

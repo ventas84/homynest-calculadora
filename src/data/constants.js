@@ -10,6 +10,9 @@ export const genId = () =>
   Date.now().toString(36).toUpperCase() +
   Math.random().toString(36).slice(2, 5).toUpperCase();
 
+// Pega aquí la URL del webhook de Google Apps Script (ver google-apps-script.js)
+export const SHEETS_WEBHOOK = "";
+
 export const C = {
   m3x6bc: 8800000,
   m3x6b: 8645000,
