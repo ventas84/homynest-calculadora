@@ -388,6 +388,20 @@ export default function QuoteView() {
     window.open(phone ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
+  const shareEmail = async () => {
+    let url = shareUrl;
+    try {
+      const resp = await fetch(`/api/shorten?url=${encodeURIComponent(shareUrl)}`);
+      if (resp.ok) { const data = await resp.json(); if (data.short) url = data.short; }
+    } catch {}
+    const total = fmt(quote.totals.precio);
+    const logLine = quote.comuna ? `\n🚚 Logística ${quote.comuna.nombre}: ${fmt(quote.totals.totalLog)} (aparte)` : "";
+    const subject = `Cotización HomyNest N° ${quote.id} — ${quote.modelName}`;
+    const body = `Hola ${quote.client.name},\n\nAdjunto tu cotización:\n\n📐 Modelo: ${quote.modelName}\n📏 Superficie: ${quote.mt2} m²\n💰 Total: ${total} + IVA${logLine}\n\n🔗 Ver presupuesto completo:\n${url}\n\nCualquier duda me avisas.\n\nSaludos,\nCristóbal Letelier\nHomyNest\nwww.homynest.cl`;
+    const email = quote.client.email || "";
+    window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_self");
+  };
+
   const downloadHTML = () => {
     const html = buildStandaloneHTML(quote, liveUf);
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
@@ -835,6 +849,13 @@ export default function QuoteView() {
 
         <button onClick={shareWA} style={{ width: "100%", background: "#25D366", border: "none", color: "#fff", padding: "12px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: font, fontWeight: 700 }}>
           Enviar por WhatsApp{quote.client.phone ? ` — ${quote.client.phone}` : ""}
+        </button>
+
+        <button onClick={shareEmail} style={{ width: "100%", background: "#4A90D9", border: "none", color: "#fff", padding: "12px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: font, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+          </svg>
+          Enviar por Email{quote.client.email ? ` — ${quote.client.email}` : ""}
         </button>
 
         <button onClick={copyLink} style={{ width: "100%", background: copied ? P.accent : P.card, color: copied ? "#FFFFFF" : P.primaryDark, border: `1px solid ${copied ? P.accent : P.border}`, padding: "12px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: font, fontWeight: 700, transition: "all .15s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
