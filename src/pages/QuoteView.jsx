@@ -395,11 +395,29 @@ export default function QuoteView() {
       if (resp.ok) { const data = await resp.json(); if (data.short) url = data.short; }
     } catch {}
     const total = fmt(quote.totals.precio);
-    const logLine = quote.comuna ? `\n🚚 Logística ${quote.comuna.nombre}: ${fmt(quote.totals.totalLog)} (aparte)` : "";
-    const subject = `Cotización HomyNest N° ${quote.id} — ${quote.modelName}`;
-    const body = `Hola ${quote.client.name},\n\nAdjunto tu cotización:\n\n📐 Modelo: ${quote.modelName}\n📏 Superficie: ${quote.mt2} m²\n💰 Total: ${total} + IVA${logLine}\n\n🔗 Ver presupuesto completo:\n${url}\n\nCualquier duda me avisas.\n\nSaludos,\nCristóbal Letelier\nHomyNest\nwww.homynest.cl`;
+    const logLine = quote.comuna ? `\nLogistica ${quote.comuna.nombre}: ${fmt(quote.totals.totalLog)} (aparte)` : "";
+    const subject = `Cotizacion HomyNest N° ${quote.id} - ${quote.modelName}`;
+    const body = [
+      `Hola ${quote.client.name},`,
+      ``,
+      `Adjunto tu cotizacion:`,
+      ``,
+      `Modelo: ${quote.modelName}`,
+      `Superficie: ${quote.mt2} m2`,
+      `Total: ${total} + IVA${logLine}`,
+      ``,
+      `Ver presupuesto completo:`,
+      url,
+      ``,
+      `Cualquier duda me avisas.`,
+      ``,
+      `Saludos,`,
+      `Cristobal Letelier`,
+      `HomyNest`,
+      `www.homynest.cl`,
+    ].join("\r\n");
     const email = quote.client.email || "";
-    window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_self");
+    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   const downloadHTML = () => {
