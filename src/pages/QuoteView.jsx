@@ -11,6 +11,7 @@ import FloorPlan36 from "../components/FloorPlan36";
 import GaleriaSection from "../components/GaleriaSection";
 import CinematicScroll from "../components/CinematicScroll";
 import { useUf } from "../lib/uf";
+import LZString from "lz-string";
 
 function escapeHTML(str) {
   if (typeof str !== "string") return String(str);
@@ -279,14 +280,20 @@ export default function QuoteView() {
   const [editingHeader, setEditingHeader] = useState(false);
   const [tempHeader, setTempHeader] = useState("");
   const [tempValidez, setTempValidez] = useState("");
-  const [waCopied, setWaCopied] = useState(false);
 
   useEffect(() => {
     let q = storage.get(id);
     if (!q && window.location.hash.length > 1) {
       try {
-        q = JSON.parse(decodeURIComponent(escape(atob(window.location.hash.slice(1)))));
+        const raw = window.location.hash.slice(1);
+        const decompressed = LZString.decompressFromEncodedURIComponent(raw);
+        q = decompressed ? JSON.parse(decompressed) : null;
       } catch {}
+      if (!q) {
+        try {
+          q = JSON.parse(decodeURIComponent(escape(atob(window.location.hash.slice(1)))));
+        } catch {}
+      }
     }
     if (q) {
       if (!q.terms) q.terms = [...DEFAULT_TERMS];
@@ -340,8 +347,13 @@ export default function QuoteView() {
     </div>
   );
 
+  const shareData = (() => {
+    if (!quote) return {};
+    const { terms, headerText, validez, ...rest } = quote;
+    return rest;
+  })();
   const shareUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/cotizacion/${quote.id}#${btoa(unescape(encodeURIComponent(JSON.stringify(quote))))}`
+    ? `${window.location.origin}/cotizacion/${quote.id}#${LZString.compressToEncodedURIComponent(JSON.stringify(shareData))}`
     : "";
 
   const copyLink = async () => {
@@ -349,11 +361,10 @@ export default function QuoteView() {
     catch { prompt("Copia el link manualmente:", shareUrl); }
   };
 
-  const shareWA = async () => {
-    try { await navigator.clipboard.writeText(shareUrl); setWaCopied(true); setTimeout(() => setWaCopied(false), 8000); } catch {}
+  const shareWA = () => {
     const total = fmt(quote.totals.precio);
     const logLine = quote.comuna ? `\n🚚 *Logística ${quote.comuna.nombre}:* ${fmt(quote.totals.totalLog)} (aparte)` : "";
-    const msg = `*Cotización HomyNest N° ${quote.id}*\n\nHola ${quote.client.name},\n\nAdjunto tu cotización:\n\n📐 *Modelo:* ${quote.modelName}\n📏 *Superficie:* ${quote.mt2} m²\n💰 *Total:* ${total} + IVA${logLine}\n\nCualquier duda me avisas.\n\nSaludos,\n*Cristóbal Letelier*\nHomyNest`;
+    const msg = `*Cotización HomyNest N° ${quote.id}*\n\nHola ${quote.client.name},\n\nAdjunto tu cotización:\n\n📐 *Modelo:* ${quote.modelName}\n📏 *Superficie:* ${quote.mt2} m²\n💰 *Total:* ${total} + IVA${logLine}\n\n🔗 Ver presupuesto completo:\n${shareUrl}\n\nCualquier duda me avisas.\n\nSaludos,\n*Cristóbal Letelier*\nHomyNest`;
     const phone = quote.client.phone ? quote.client.phone.replace(/[^\d]/g, "") : "";
     window.open(phone ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   };
@@ -805,11 +816,6 @@ export default function QuoteView() {
         <button onClick={shareWA} style={{ width: "100%", background: "#25D366", border: "none", color: "#fff", padding: "12px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: font, fontWeight: 700 }}>
           Enviar por WhatsApp{quote.client.phone ? ` — ${quote.client.phone}` : ""}
         </button>
-        {waCopied && (
-          <div style={{ background: "#FEF3C7", border: "1px solid #F59E0B", borderRadius: 8, padding: "10px 14px", fontSize: 12, fontFamily: font, color: "#92400E", lineHeight: 1.5, textAlign: "center" }}>
-            El link del presupuesto fue copiado a tu portapapeles. Pégalo como segundo mensaje en el chat de WhatsApp.
-          </div>
-        )}
 
         <button onClick={copyLink} style={{ width: "100%", background: copied ? P.accent : P.card, color: copied ? "#FFFFFF" : P.primaryDark, border: `1px solid ${copied ? P.accent : P.border}`, padding: "12px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: font, fontWeight: 700, transition: "all .15s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
