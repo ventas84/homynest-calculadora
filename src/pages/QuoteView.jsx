@@ -274,6 +274,7 @@ export default function QuoteView() {
   const [quote, setQuote] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [isShared, setIsShared] = useState(false);
   const [section, setSection] = useState("presupuesto");
   const [editingTerms, setEditingTerms] = useState(false);
   const [tempTerms, setTempTerms] = useState([]);
@@ -283,6 +284,7 @@ export default function QuoteView() {
 
   useEffect(() => {
     let q = storage.get(id);
+    let shared = false;
     if (!q && window.location.hash.length > 1) {
       try {
         const raw = window.location.hash.slice(1);
@@ -294,7 +296,9 @@ export default function QuoteView() {
           q = JSON.parse(decodeURIComponent(escape(atob(window.location.hash.slice(1)))));
         } catch {}
       }
+      if (q) shared = true;
     }
+    setIsShared(shared);
     if (q) {
       if (!q.terms) q.terms = [...DEFAULT_TERMS];
       if (!q.headerText) q.headerText = DEFAULT_HEADER_TEXT;
@@ -361,10 +365,15 @@ export default function QuoteView() {
     catch { prompt("Copia el link manualmente:", shareUrl); }
   };
 
-  const shareWA = () => {
+  const shareWA = async () => {
+    let url = shareUrl;
+    try {
+      const resp = await fetch(`/api/shorten?url=${encodeURIComponent(shareUrl)}`);
+      if (resp.ok) { const data = await resp.json(); if (data.short) url = data.short; }
+    } catch {}
     const total = fmt(quote.totals.precio);
     const logLine = quote.comuna ? `\n🚚 *Logística ${quote.comuna.nombre}:* ${fmt(quote.totals.totalLog)} (aparte)` : "";
-    const msg = `*Cotización HomyNest N° ${quote.id}*\n\nHola ${quote.client.name},\n\nAdjunto tu cotización:\n\n📐 *Modelo:* ${quote.modelName}\n📏 *Superficie:* ${quote.mt2} m²\n💰 *Total:* ${total} + IVA${logLine}\n\n🔗 Ver presupuesto completo:\n${shareUrl}\n\nCualquier duda me avisas.\n\nSaludos,\n*Cristóbal Letelier*\nHomyNest`;
+    const msg = `*Cotización HomyNest N° ${quote.id}*\n\nHola ${quote.client.name},\n\nAdjunto tu cotización:\n\n📐 *Modelo:* ${quote.modelName}\n📏 *Superficie:* ${quote.mt2} m²\n💰 *Total:* ${total} + IVA${logLine}\n\n🔗 Ver presupuesto completo:\n${url}\n\nCualquier duda me avisas.\n\nSaludos,\n*Cristóbal Letelier*\nHomyNest`;
     const phone = quote.client.phone ? quote.client.phone.replace(/[^\d]/g, "") : "";
     window.open(phone ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   };
@@ -448,8 +457,8 @@ export default function QuoteView() {
 
       <div className="no-print" style={{ marginBottom: 16 }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 10, alignItems: "center", flexWrap: "wrap" }}>
-          <button onClick={() => navigate("/")} style={{ background: P.card, border: `1px solid ${P.border}`, color: P.text, padding: "8px 12px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontFamily: font }}>Calculadora</button>
-          <button onClick={() => navigate("/cotizaciones")} style={{ background: P.card, border: `1px solid ${P.border}`, color: P.text, padding: "8px 12px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontFamily: font }}>Mis cotizaciones</button>
+          {!isShared && <button onClick={() => navigate("/")} style={{ background: P.card, border: `1px solid ${P.border}`, color: P.text, padding: "8px 12px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontFamily: font }}>Calculadora</button>}
+          {!isShared && <button onClick={() => navigate("/cotizaciones")} style={{ background: P.card, border: `1px solid ${P.border}`, color: P.text, padding: "8px 12px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontFamily: font }}>Mis cotizaciones</button>}
           <div style={{ flex: 1 }} />
           <button onClick={() => window.print()} style={{ background: P.cardAlt, border: `1px solid ${P.border}`, color: P.text, padding: "8px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13, fontFamily: font, fontWeight: 600 }}>Imprimir</button>
         </div>
@@ -555,7 +564,7 @@ export default function QuoteView() {
           <div className="reveal" style={{ marginBottom: 24 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
               <div className="terms-title" style={{ fontSize: 14, fontWeight: 800, letterSpacing: "0.04em", textDecoration: "underline" }}>TÉRMINOS Y CONDICIONES</div>
-              {!editingTerms && (
+              {!editingTerms && !isShared && (
                 <button onClick={() => setEditingTerms(true)} className="no-print" style={{ background: "transparent", border: `1px solid ${B.border}`, color: B.gray, padding: "4px 12px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontFamily: font, fontWeight: 600 }}>Editar</button>
               )}
             </div>
@@ -808,6 +817,7 @@ export default function QuoteView() {
       </AnimatePresence>
 
       {/* ═══════════ ACCIONES (al final) ═══════════ */}
+      {!isShared && (
       <div className="no-print" style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 8 }}>
         <button onClick={downloadHTML} style={{ width: "100%", background: P.accent, border: "none", color: "#FFFFFF", padding: "14px 16px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontFamily: fontHeading, fontWeight: 700, letterSpacing: "-0.01em", boxShadow: "0 4px 16px rgba(166,124,82,.3)", transition: "all .15s ease" }}>
           Descargar pagina HTML (para enviar al cliente)
@@ -827,6 +837,7 @@ export default function QuoteView() {
           {copied ? "Link copiado al portapapeles" : "Copiar link para enviar al cliente"}
         </button>
       </div>
+      )}
 
       </motion.div>
     </>
