@@ -284,20 +284,31 @@ export default function QuoteView() {
 
   useEffect(() => {
     let q = storage.get(id);
+    const params = new URLSearchParams(window.location.search);
+    const dParam = params.get("d");
     const hasHash = window.location.hash.length > 1;
-    if (!q && hasHash) {
-      try {
-        const raw = window.location.hash.slice(1);
-        const decompressed = LZString.decompressFromEncodedURIComponent(raw);
-        q = decompressed ? JSON.parse(decompressed) : null;
-      } catch {}
-      if (!q) {
+    const shared = !!(dParam || hasHash);
+    if (!q && (dParam || hasHash)) {
+      if (dParam) {
         try {
-          q = JSON.parse(decodeURIComponent(escape(atob(window.location.hash.slice(1)))));
+          const decompressed = LZString.decompressFromEncodedURIComponent(dParam);
+          q = decompressed ? JSON.parse(decompressed) : null;
         } catch {}
       }
+      if (!q && hasHash) {
+        try {
+          const raw = window.location.hash.slice(1);
+          const decompressed = LZString.decompressFromEncodedURIComponent(raw);
+          q = decompressed ? JSON.parse(decompressed) : null;
+        } catch {}
+        if (!q) {
+          try {
+            q = JSON.parse(decodeURIComponent(escape(atob(window.location.hash.slice(1)))));
+          } catch {}
+        }
+      }
     }
-    setIsShared(hasHash);
+    setIsShared(shared);
     if (q) {
       if (!q.terms) q.terms = [...DEFAULT_TERMS];
       if (!q.headerText) q.headerText = DEFAULT_HEADER_TEXT;
@@ -356,7 +367,7 @@ export default function QuoteView() {
     return rest;
   })();
   const shareUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/cotizacion/${quote.id}#${LZString.compressToEncodedURIComponent(JSON.stringify(shareData))}`
+    ? `${window.location.origin}/cotizacion/${quote.id}?d=${LZString.compressToEncodedURIComponent(JSON.stringify(shareData))}`
     : "";
 
   const copyLink = async () => {
