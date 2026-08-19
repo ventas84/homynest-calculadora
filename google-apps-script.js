@@ -61,7 +61,7 @@ function doPost(e) {
       fechaStr,
       data.id,
       data.client ? data.client.name : "",
-      data.client ? data.client.phone : "",
+      data.client && data.client.phone ? data.client.phone : "",
       data.client ? data.client.email || "" : "",
       data.modelName || "",
       data.mt2 || "",
@@ -82,7 +82,7 @@ function doPost(e) {
       sheet.appendRow(row);
     }
 
-    // Auto-ajustar columnas
+    sheet.getRange(2, 4, Math.max(sheet.getLastRow() - 1, 1), 1).setNumberFormat("@");
     sheet.autoResizeColumns(1, 15);
 
     return ContentService.createTextOutput(
