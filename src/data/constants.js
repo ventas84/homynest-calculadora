@@ -96,6 +96,12 @@ export const EXTRAS = [
   { id: "quincho", label: "Quincho", unit: "m²", defaultQty: 20, defaultPrice: 180000, priceLabel: "por m²" },
   { id: "cierro", label: "Cierro perimetral", unit: "ml", defaultQty: 50, defaultPrice: 35000, priceLabel: "por ml" },
   { id: "fosa", label: "Provisión e instalación de fosa", unit: "un", defaultQty: 1, defaultPrice: 1500000, priceLabel: "c/u" },
+  { id: "pisoVinilico", label: "Upgrade piso vinílico", unit: "m²", defaultQty: 36, defaultPrice: 14000, priceLabel: "por m²" },
+  { id: "ventanasPVC", label: "Upgrade marcos ventanas PVC", unit: "un", defaultQty: 1, defaultPrice: 800000, priceLabel: "por proyecto" },
+  { id: "extraAislacion", label: "Extra aislación", unit: "un", defaultQty: 1, defaultPrice: 300000, priceLabel: "por proyecto" },
+  { id: "rootman", label: "Aislación ecológica Rootman", unit: "un", defaultQty: 1, defaultPrice: 800000, priceLabel: "por proyecto" },
+  { id: "aleros", label: "Aleros", unit: "ml", defaultQty: 10, defaultPrice: 70000, priceLabel: "por ml" },
+  { id: "techoTerraza", label: "Techo simple terraza", unit: "m²", defaultQty: 20, defaultPrice: 60000, priceLabel: "por m²" },
 ];
 
 export const DEFAULT_TERMS = [
