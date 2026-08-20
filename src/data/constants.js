@@ -30,7 +30,7 @@ export const C = {
   terrazaMt2: 85000,
   casaUf: 18,
   modUf: 17,
-  uf: 39640,
+  uf: 40859,
 };
 
 export const PRESETS = [
@@ -44,7 +44,7 @@ export const PRESETS = [
       inclCocina: true, valCocina: 380000, banos: 1, valBano: 100000,
       inclVent: true, valVent: 1800000, inclHoja: true, valHoja: 400000,
       inclApoyos: true, valApoyo: 180000, cantApoyos: 2, viaticos: 200000,
-      precio: 21990000,
+      precio: 23450000,
     },
   },
   {
