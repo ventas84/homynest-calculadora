@@ -18,6 +18,12 @@ function escapeHTML(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
+function esZonaIncluida(comuna) {
+  if (!comuna || !comuna.region) return false;
+  const r = comuna.region.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  return r.includes("araucania") || r.includes("los rios");
+}
+
 function boldHeaderHTML(text) {
   let s = escapeHTML(text);
   s = s.replace(/(&quot;llave en mano&quot;|"llave en mano")/gi, '<strong>"llave en mano"</strong>');
@@ -116,16 +122,25 @@ function buildStandaloneHTML(quote, liveUf) {
       </div>`
     : "";
 
+  const zonaInc = esZonaIncluida(quote.comuna);
   const logHTML = quote.comuna
-    ? `<div class="logistics-box">
-        <div class="section-title">LOGÍSTICA — ${escapeHTML(quote.comuna.nombre)}, ${escapeHTML(quote.comuna.region)}</div>
-        <div class="log-row"><span>Distancia</span><span>${fmtNum(quote.comuna.km)} km</span></div>
-        <div class="log-row"><span>Transporte</span><span>${fmt(quote.comuna.transporte)}</span></div>
-        <div class="log-row"><span>Izaje</span><span>${fmt(quote.comuna.izaje)}</span></div>
-        <div class="log-divider"></div>
-        <div class="log-row total"><span>Total logística</span><span>${fmt(t.totalLog)}</span></div>
-        <div class="note">* Valor de logística cotizado aparte, no incluido en el precio oferta.</div>
-      </div>`
+    ? zonaInc
+      ? `<div class="logistics-box">
+          <div class="section-title">LOGÍSTICA — ${escapeHTML(quote.comuna.nombre)}, ${escapeHTML(quote.comuna.region)}</div>
+          <div class="log-row"><span>Distancia</span><span>${fmtNum(quote.comuna.km)} km</span></div>
+          <div class="log-divider"></div>
+          <div class="log-row total"><span>Transporte e izaje</span><span style="color:#16A34A;font-weight:700">Incluido</span></div>
+          <div class="note">* Envío e instalación incluida para las regiones de la Araucanía y Los Ríos.</div>
+        </div>`
+      : `<div class="logistics-box">
+          <div class="section-title">LOGÍSTICA — ${escapeHTML(quote.comuna.nombre)}, ${escapeHTML(quote.comuna.region)}</div>
+          <div class="log-row"><span>Distancia</span><span>${fmtNum(quote.comuna.km)} km</span></div>
+          <div class="log-row"><span>Transporte</span><span>${fmt(quote.comuna.transporte)}</span></div>
+          <div class="log-row"><span>Izaje</span><span>${fmt(quote.comuna.izaje)}</span></div>
+          <div class="log-divider"></div>
+          <div class="log-row total"><span>Total logística</span><span>${fmt(t.totalLog)}</span></div>
+          <div class="note">* Valor de logística cotizado aparte, no incluido en el precio oferta.</div>
+        </div>`
     : "";
 
   const notesHTML = quote.client.notes
@@ -382,7 +397,11 @@ export default function QuoteView() {
       if (resp.ok) { const data = await resp.json(); if (data.short) url = data.short; }
     } catch {}
     const total = fmt(quote.totals.precio);
-    const logLine = quote.comuna ? `\n🚚 *Logística ${quote.comuna.nombre}:* ${fmt(quote.totals.totalLog)} (aparte)` : "";
+    const logLine = quote.comuna
+      ? esZonaIncluida(quote.comuna)
+        ? `\n🚚 *Logística ${quote.comuna.nombre}:* Incluido`
+        : `\n🚚 *Logística ${quote.comuna.nombre}:* ${fmt(quote.totals.totalLog)} (aparte)`
+      : "";
     const msg = `*Cotización HomyNest N° ${quote.id}*\n\nHola ${quote.client.name},\n\nAdjunto tu cotización:\n\n📐 *Modelo:* ${quote.modelName}\n📏 *Superficie:* ${quote.mt2} m²\n💰 *Total:* ${total} + IVA${logLine}\n\n🔗 Ver presupuesto completo:\n${url}\n\nCualquier duda me avisas.\n\nSaludos,\n*Cristóbal Letelier*\nHomyNest`;
     const phone = quote.client.phone ? quote.client.phone.replace(/[^\d]/g, "") : "";
     window.open(phone ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
@@ -643,12 +662,25 @@ export default function QuoteView() {
               <div className="section-label" style={{ fontSize: 11, letterSpacing: "0.14em", color: B.darkGreen, fontWeight: 800, marginBottom: 10, textTransform: "uppercase" }}>Logística — {quote.comuna.nombre}, {quote.comuna.region}</div>
               <div style={{ fontSize: 13, lineHeight: 1.7 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Distancia</span><span>{fmtNum(quote.comuna.km)} km</span></div>
-                <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Transporte</span><span>{fmt(quote.comuna.transporte)}</span></div>
-                <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Izaje</span><span>{fmt(quote.comuna.izaje)}</span></div>
-                <div style={{ height: 1, background: B.border, margin: "8px 0" }} />
-                <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, padding: "4px 0" }}><span>Total logística</span><span>{fmt(t.totalLog)}</span></div>
+                {esZonaIncluida(quote.comuna) ? (
+                  <>
+                    <div style={{ height: 1, background: B.border, margin: "8px 0" }} />
+                    <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, padding: "4px 0" }}><span>Transporte e izaje</span><span style={{ color: "#16A34A" }}>Incluido</span></div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Transporte</span><span>{fmt(quote.comuna.transporte)}</span></div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}><span>Izaje</span><span>{fmt(quote.comuna.izaje)}</span></div>
+                    <div style={{ height: 1, background: B.border, margin: "8px 0" }} />
+                    <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, padding: "4px 0" }}><span>Total logística</span><span>{fmt(t.totalLog)}</span></div>
+                  </>
+                )}
               </div>
-              <div style={{ fontSize: 11, color: B.gray, marginTop: 10, fontStyle: "italic" }}>* Valor de logística cotizado aparte, no incluido en el precio oferta.</div>
+              <div style={{ fontSize: 11, color: B.gray, marginTop: 10, fontStyle: "italic" }}>
+                {esZonaIncluida(quote.comuna)
+                  ? "* Envío e instalación incluida para las regiones de la Araucanía y Los Ríos."
+                  : "* Valor de logística cotizado aparte, no incluido en el precio oferta."}
+              </div>
             </div>
           )}
 
