@@ -19,8 +19,8 @@ function CalcModulos() {
   const [m3x6v, setM3x6v] = useState(1);
   const [m35x7b, setM35x7b] = useState(0);
   const [m35x7v, setM35x7v] = useState(0);
-  const [incl150, setIncl150] = useState(false);
-  const [val150, setVal150] = useState(C.add150);
+  const [cant50, setCant50] = useState(0);
+  const [val50, setVal50] = useState(C.add50);
   const [inclEstruct, setInclEstruct] = useState(false);
   const [valEstruct, setValEstruct] = useState(C.estructVent);
   const [inclCocina, setInclCocina] = useState(true);
@@ -53,7 +53,7 @@ function CalcModulos() {
     setActivePreset(preset.id);
     setM3x6bc(v.m3x6bc); setM3x6b(v.m3x6b); setM3x6v(v.m3x6v);
     setM35x7b(v.m35x7b); setM35x7v(v.m35x7v);
-    setIncl150(v.incl150); setVal150(v.val150);
+    setCant50(v.cant50); setVal50(v.val50);
     setInclEstruct(v.inclEstruct); setValEstruct(v.valEstruct);
     setInclCocina(v.inclCocina); setValCocina(v.valCocina);
     setBanos(v.banos); setValBano(v.valBano);
@@ -68,11 +68,11 @@ function CalcModulos() {
   const totalMod3x6 = m3x6bc + m3x6b + m3x6v;
   const totalMod35x7 = m35x7b + m35x7v;
   const totalModulos = totalMod3x6 + totalMod35x7;
-  const mt2 = totalMod3x6 * 18 + totalMod35x7 * 24.5 + (incl150 ? 4.5 : 0);
+  const mt2 = totalMod3x6 * 18 + totalMod35x7 * 24.5 + cant50 * 1.5;
 
   const calc = useMemo(() => {
     const costoMods = m3x6bc * C.m3x6bc + m3x6b * C.m3x6b + m3x6v * C.m3x6v + m35x7b * C.m35x7b + m35x7v * C.m35x7v;
-    const cAdd150 = incl150 ? val150 : 0;
+    const cAdd50 = cant50 * val50;
     const cEstruct = inclEstruct ? valEstruct : 0;
     const cCocina = inclCocina ? valCocina : 0;
     const cBanos = banos * valBano;
@@ -80,7 +80,7 @@ function CalcModulos() {
     const cHoja = inclHoja ? valHoja : 0;
     const cApoyos = inclApoyos ? valApoyo * cantApoyos : 0;
     const cExtras = Object.entries(extras).reduce((sum, [, ex]) => sum + (ex.on ? ex.qty * ex.price : 0), 0);
-    const costoTotal = costoMods + cAdd150 + cEstruct + cCocina + cBanos + cVent + cHoja + cApoyos + viaticos;
+    const costoTotal = costoMods + cAdd50 + cEstruct + cCocina + cBanos + cVent + cHoja + cApoyos + viaticos;
     const precioMinimo = Math.ceil(costoTotal / (1 - margenObj / 100));
     const transComuna = selectedComuna ? selectedComuna.transporte : 0;
     const izajeComuna = selectedComuna ? selectedComuna.izaje : 0;
@@ -88,8 +88,8 @@ function CalcModulos() {
     const ganancia = precio - costoTotal;
     const margen = precio > 0 ? (ganancia / precio) * 100 : 0;
     const bajoMargen = margen < margenObj;
-    return { costoMods, cAdd150, cEstruct, cCocina, cBanos, cVent, cHoja, cApoyos, cExtras, costoTotal, precioMinimo, transComuna, izajeComuna, totalLog, ganancia, margen, bajoMargen };
-  }, [m3x6bc, m3x6b, m3x6v, m35x7b, m35x7v, incl150, val150, inclEstruct, valEstruct, inclCocina, valCocina, banos, valBano, inclVent, valVent, inclHoja, valHoja, inclApoyos, valApoyo, cantApoyos, viaticos, extras, selectedComuna, precio, margenObj]);
+    return { costoMods, cAdd50, cEstruct, cCocina, cBanos, cVent, cHoja, cApoyos, cExtras, costoTotal, precioMinimo, transComuna, izajeComuna, totalLog, ganancia, margen, bajoMargen };
+  }, [m3x6bc, m3x6b, m3x6v, m35x7b, m35x7v, cant50, val50, inclEstruct, valEstruct, inclCocina, valCocina, banos, valBano, inclVent, valVent, inclHoja, valHoja, inclApoyos, valApoyo, cantApoyos, viaticos, extras, selectedComuna, precio, margenObj]);
 
   const handleSaveQuote = (clientInfo) => {
     setSaving(true);
@@ -106,7 +106,7 @@ function CalcModulos() {
       totalModulos, mt2,
       items: {
         m3x6bc, m3x6b, m3x6v, m35x7b, m35x7v,
-        incl150, val150, inclEstruct, valEstruct,
+        cant50, val50, inclEstruct, valEstruct,
         inclCocina, valCocina, banos, valBano,
         inclVent, valVent, inclHoja, valHoja,
         inclApoyos, valApoyo, cantApoyos, viaticos,
@@ -117,7 +117,7 @@ function CalcModulos() {
         costoTotal: calc.costoTotal, precio, ganancia: calc.ganancia, margen: calc.margen,
         totalLog: calc.totalLog,
         breakdown: {
-          fabricacion: calc.costoMods, add150: calc.cAdd150, estruct: calc.cEstruct,
+          fabricacion: calc.costoMods, add50: calc.cAdd50, estruct: calc.cEstruct,
           cocina: calc.cCocina, banos: calc.cBanos, ventanas: calc.cVent,
           hojalateria: calc.cHoja, apoyos: calc.cApoyos, viaticos,
         },
@@ -146,8 +146,8 @@ function CalcModulos() {
         <NumInput label="Con baño" value={m35x7b} onChange={(v) => { setM35x7b(v); clearPreset(); }} suffix={`× ${fmt(C.m35x7b)}`} max={6} />
         <NumInput label="Solo (sin baño)" value={m35x7v} onChange={(v) => { setM35x7v(v); clearPreset(); }} suffix={`× ${fmt(C.m35x7v)}`} max={6} />
         <SubHead>Extensiones</SubHead>
-        <Toggle label="150 cm adicionales (+4,5 m²)" checked={incl150} onChange={(v) => { setIncl150(v); clearPreset(); }} />
-        {incl150 && <MoneyInput label="Valor 150 cm adicionales" value={val150} onChange={setVal150} />}
+        <NumInput label="50 cm adicional (0,5×3 = 1,5 m²)" value={cant50} onChange={(v) => { setCant50(v); clearPreset(); }} suffix={`× ${fmt(val50)}`} max={10} />
+        {cant50 > 0 && <MoneyInput label="Valor c/u 50 cm adicional" value={val50} onChange={setVal50} />}
         <Toggle label="Extra estructura ventanal" checked={inclEstruct} onChange={(v) => { setInclEstruct(v); clearPreset(); }} />
         {inclEstruct && <MoneyInput label="Valor estructura ventanal" value={valEstruct} onChange={setValEstruct} />}
         <div style={{ display: "flex", gap: 16, marginTop: 14 }}>
@@ -243,7 +243,7 @@ function CalcModulos() {
 
       <Section title="Resumen de costos — Módulos">
         <Line label="Fabricación módulos" value={calc.costoMods} />
-        {calc.cAdd150 > 0 && <Line label="150 cm adicionales" value={calc.cAdd150} />}
+        {calc.cAdd50 > 0 && <Line label={`50 cm adicional (×${cant50})`} value={calc.cAdd50} />}
         {calc.cEstruct > 0 && <Line label="Extra estructura ventanal" value={calc.cEstruct} />}
         {calc.cCocina > 0 && <Line label="Mueble cocina" value={calc.cCocina} />}
         {calc.cBanos > 0 && <Line label={`Mueble(s) baño (×${banos})`} value={calc.cBanos} />}

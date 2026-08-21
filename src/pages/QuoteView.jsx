@@ -81,7 +81,8 @@ function projectInfo(quote, liveUf) {
   const n35x7 = (items.m35x7b || 0) + (items.m35x7v || 0);
   let dims;
   if (n3x6 > 0 && n35x7 === 0) {
-    const len = n3x6 * 6 + (items.incl150 ? 1.5 : 0);
+    const ext = items.cant50 ? items.cant50 * 0.5 : (items.incl150 ? 1.5 : 0);
+    const len = n3x6 * 6 + ext;
     dims = `3 x ${len % 1 === 0 ? len : String(len).replace(".", ",")} mt`;
   } else if (n35x7 > 0 && n3x6 === 0) {
     const len = n35x7 * 7;

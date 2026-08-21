@@ -18,7 +18,7 @@ export const C = {
   m3x6v: 7415000,
   m35x7b: 12750000,
   m35x7v: 11500000,
-  add150: 2000000,
+  add50: 750000,
   estructVent: 800000,
   cocina: 380000,
   bano: 100000,
@@ -40,7 +40,7 @@ export const PRESETS = [
     sub: "2 mód · 1 baño",
     v: {
       m3x6bc: 1, m3x6b: 0, m3x6v: 1, m35x7b: 0, m35x7v: 0,
-      incl150: false, val150: 2000000, inclEstruct: false, valEstruct: 800000,
+      cant50: 0, val50: 750000, inclEstruct: false, valEstruct: 800000,
       inclCocina: true, valCocina: 380000, banos: 1, valBano: 100000,
       inclVent: true, valVent: 1800000, inclHoja: true, valHoja: 400000,
       inclApoyos: true, valApoyo: 180000, cantApoyos: 2, viaticos: 200000,
@@ -53,7 +53,7 @@ export const PRESETS = [
     sub: "3 mód · 2 baños",
     v: {
       m3x6bc: 1, m3x6b: 1, m3x6v: 1, m35x7b: 0, m35x7v: 0,
-      incl150: false, val150: 2000000, inclEstruct: false, valEstruct: 800000,
+      cant50: 0, val50: 750000, inclEstruct: false, valEstruct: 800000,
       inclCocina: true, valCocina: 380000, banos: 2, valBano: 100000,
       inclVent: true, valVent: 2200000, inclHoja: true, valHoja: 400000,
       inclApoyos: true, valApoyo: 180000, cantApoyos: 3, viaticos: 200000,
@@ -63,10 +63,10 @@ export const PRESETS = [
   {
     id: "m22",
     label: "22,5 m²",
-    sub: "1 mód + 150 cm",
+    sub: "1 mód + 3×50 cm",
     v: {
       m3x6bc: 1, m3x6b: 0, m3x6v: 0, m35x7b: 0, m35x7v: 0,
-      incl150: true, val150: 2000000, inclEstruct: false, valEstruct: 800000,
+      cant50: 3, val50: 750000, inclEstruct: false, valEstruct: 800000,
       inclCocina: true, valCocina: 380000, banos: 1, valBano: 100000,
       inclVent: true, valVent: 1300000, inclHoja: true, valHoja: 300000,
       inclApoyos: true, valApoyo: 180000, cantApoyos: 1, viaticos: 400000,
@@ -79,7 +79,7 @@ export const PRESETS = [
     sub: "Línea pro 3,5×14",
     v: {
       m3x6bc: 0, m3x6b: 0, m3x6v: 0, m35x7b: 1, m35x7v: 1,
-      incl150: false, val150: 2000000, inclEstruct: true, valEstruct: 800000,
+      cant50: 0, val50: 750000, inclEstruct: true, valEstruct: 800000,
       inclCocina: true, valCocina: 400000, banos: 1, valBano: 150000,
       inclVent: true, valVent: 2500000, inclHoja: false, valHoja: 400000,
       inclApoyos: false, valApoyo: 180000, cantApoyos: 2, viaticos: 0,
@@ -100,7 +100,7 @@ export const EXTRAS = [
   { id: "ventanasPVC", label: "Upgrade marcos ventanas PVC", unit: "un", defaultQty: 1, defaultPrice: 800000, priceLabel: "por proyecto" },
   { id: "extraAislacion", label: "Extra aislación", unit: "un", defaultQty: 1, defaultPrice: 300000, priceLabel: "por proyecto" },
   { id: "rootman", label: "Aislación ecológica Rootman", unit: "un", defaultQty: 1, defaultPrice: 800000, priceLabel: "por proyecto" },
-  { id: "aleros", label: "Aleros", unit: "ml", defaultQty: 10, defaultPrice: 70000, priceLabel: "por ml" },
+  { id: "aleros", label: "Aleros", unit: "ml", defaultQty: 10, defaultPrice: 33000, priceLabel: "por ml" },
   { id: "techoTerraza", label: "Techo simple terraza", unit: "m²", defaultQty: 20, defaultPrice: 60000, priceLabel: "por m²" },
 ];
 
